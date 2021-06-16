@@ -4,12 +4,19 @@
   "description": "messenger back-end",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "nodemon"
   },
   "repository": {
     "type": "git",
     "url": "origin https://github.com/G-Prokhorov/messenger-back.git"
   },
   "author": "Gregory Prokhorov",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "typescript": "^4.3.2"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.12",
+    "express": "^4.17.1"
+  }
 }
