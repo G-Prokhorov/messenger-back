@@ -2,7 +2,7 @@ import express from 'express';
 import bodyParser from "body-parser";
 import cors from 'cors';
 import sanitizer from "sanitizer";
-import { Sequelize, Model, DataTypes } from "sequelize";
+import {Sequelize, Model, DataTypes} from "sequelize";
 import bcrypt from "bcrypt";
 
 require('dotenv').config();
@@ -105,6 +105,36 @@ app.post("/register", async (req, res) => {
     }
 
     res.sendStatus(200);
+    return;
+});
+
+app.get("/checkUser", async (req, res) => {
+    let username: string;
+
+    if (!req.query.username) {
+        res.sendStatus(400);
+        return;
+    }
+
+    try {
+        username = "@" + sanitizer.escape(String(req.query.username));
+    } catch {
+        res.sendStatus(400);
+        return;
+    }
+
+    let result = await User.findOne({
+        where: {
+            username: username,
+        },
+    });
+
+    if (result) {
+        res.sendStatus(409);
+    } else {
+        res.sendStatus(200);
+    }
+
     return;
 });
 
