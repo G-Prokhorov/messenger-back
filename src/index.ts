@@ -17,7 +17,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 const sequelize = new Sequelize(`postgresql://${process.env.DB_USER}:${process.env.DB_PASS}@${process.env.DB_HOST}:5432/messenger`);
 
 const User = sequelize.define("users", {
-    email: {
+    username: {
         type: DataTypes.TEXT,
         allowNull: false,
     },
@@ -25,20 +25,10 @@ const User = sequelize.define("users", {
         type: DataTypes.TEXT,
         allowNull: false,
     },
-    username: {
+    name: {
         type: DataTypes.TEXT,
         allowNull: false,
         defaultValue: 'Anonymous',
-    },
-    createdAt: {
-        type: DataTypes.DATE,
-        allowNull: false,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
-    },
-    updatedAt: {
-        type: DataTypes.DATE,
-        allowNull: false,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
     },
 });
 
@@ -62,12 +52,19 @@ app.get("/", (req, res) => {
 });
 
 app.post("/register", async (req, res) => {
-    let email: string;
+    let username: string;
     let password: string;
     let confirm: string;
 
+    let re = new RegExp("^[a-zA-Z0-9_.-]*$")
+
+    if (!re.test(String(req.body.username))) {
+        res.sendStatus(403).send("Password must not include special characters");
+        return;
+    }
+
     try {
-        email = sanitizer.escape(req.body.email);
+        username = "@" + sanitizer.escape(req.body.username);
         password = sanitizer.escape(req.body.password);
         confirm = sanitizer.escape(req.body.confirm);
     } catch {
@@ -75,12 +72,12 @@ app.post("/register", async (req, res) => {
         return;
     }
 
-    if (!email || !password || !confirm) {
+    if (!username || !password || !confirm) {
         res.sendStatus(400);
         return;
     }
 
-    if (!validateEmail(email) || (password.length > 30) || (password.length < 6) || (password !== confirm)) {
+    if ((username.length > 51) || (password.length > 30) || (password.length < 6) || (password !== confirm)) {
         res.sendStatus(403);
         return;
     }
@@ -88,24 +85,29 @@ app.post("/register", async (req, res) => {
     try {
         const salt = await bcrypt.genSalt(saltRounds);
         const hash = await bcrypt.hash(password, salt);
-        await User.create({
-            email: email,
-            password: hash,
+        let result = await User.findOrCreate({
+            where: {
+                username: username,
+            },
+            defaults: {
+                password: hash,
+            },
         });
-        res.sendStatus(200);
+
+        if (!result.pop()) {
+            res.sendStatus(409);
+            return;
+        }
+
     } catch (err) {
-        res.sendStatus(403);
-        console.log("Error while register new user, " + err);
+        res.sendStatus(403).send("Error while register new user, " + err);
+        return;
     }
 
     res.sendStatus(200);
+    return;
 });
 
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`);
 });
-
-function validateEmail(email: string) {
-    const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return re.test(String(email).toLowerCase());
-}
