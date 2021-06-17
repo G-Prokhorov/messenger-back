@@ -36,11 +36,11 @@ const User = sequelize.define("users", {
 });
 
 app.use(cors({
-    // @ts-ignore
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept",
+    //@ts-ignore
+    "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept, Special-Request-Header",
+    "Access-Control-Allow-Origin": "http://localhost:8080/",
+    "Access-Control-Allow-Credentials": true,
 }));
-
 
 app.get("/", (req, res) => {
     res.send("Hello, world!");
@@ -72,10 +72,10 @@ app.post("/login", async (req, res) => {
 
     try {
         let compare = await bcrypt.compare(password, result.getDataValue('password'))
-
         if (compare) {
             await giveToken(username, res);
-            res.sendStatus(200);
+            console.log("here");
+            res.status(200).send("login");
         } else {
             res.sendStatus(401);
         }
@@ -134,14 +134,14 @@ app.post("/register", async (req, res) => {
             return;
         }
     } catch (err) {
-        res.status(500).send("Error while register new user, " + err);
+        res.send("Error while register new user, " + err).status(500);
         return;
     }
 
     try {
         await giveToken(username, res);
     } catch (e) {
-        res.send(e).sendStatus(500);
+        res.send(e).status(500);
     }
     return;
 });
@@ -185,8 +185,8 @@ async function giveToken(username: string, res: any) {
     try {
         let token = await jwt.sign({username: username}, process.env.TOKEN, {expiresIn: '20m'});
         let refreshToken = await jwt.sign({username: username}, process.env.REFRESH_TOKEN, {expiresIn: '14d'});
-        res.cookie("token", token, {domain: 'localhost', httpOnly: true})
-            .cookie("refreshToken", refreshToken, {domain: 'localhost', httpOnly: true});
+        res.cookie("token", token, {domain: 'localhost', httpOnly: true, secure: true})
+            .cookie("refreshToken", refreshToken, {domain: 'localhost', httpOnly: true, secure: true});
     } catch (e) {
         res.send("Error while generate tokens").status(500);
     }
