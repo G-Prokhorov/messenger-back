@@ -6,12 +6,16 @@ import {DataTypes, Sequelize} from "sequelize";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
+import redis from "redis";
 
 require('dotenv').config();
 
 const app = express();
 const port = 5000;
 const saltRounds = 10;
+const publisher = redis.createClient();
+const subscriber = redis.createClient();
+
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
@@ -35,12 +39,14 @@ const User = sequelize.define("users", {
     },
 });
 
-app.use(cors({
-    //@ts-ignore
-    "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept, Special-Request-Header",
-    "Access-Control-Allow-Origin": "http://localhost:8080/",
-    "Access-Control-Allow-Credentials": true,
-}));
+const corsOptions = {
+    origin: "http://localhost:8080",
+    allowedHeaders: "Origin, X-Requested-With, Content-Type, Accept, Special-Request-Header",
+    credentials: true,
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+}
+
+app.use(cors(corsOptions));
 
 app.get("/", (req, res) => {
     res.send("Hello, world!");
@@ -49,6 +55,8 @@ app.get("/", (req, res) => {
 app.post("/login", async (req, res) => {
     let username: string;
     let password: string;
+
+    console.log(req.body);
 
     if (!req.body.username || !req.body.password) {
         res.sendStatus(400);
@@ -67,6 +75,7 @@ app.post("/login", async (req, res) => {
 
     if (!result) {
         res.sendStatus(404);
+        return;
     }
 
 
@@ -171,9 +180,37 @@ app.get("/checkUser", async (req, res) => {
     return;
 });
 
-app.post("/checkTokens", middleware, (req, res) => {
+app.get("/logout", (req, res) => {
+    res.clearCookie("token").clearCookie("refreshToken").status(200).send("clear");
+    return;
+})
+
+app.get("/checkTokens", middleware, (req, res) => {
     console.log("here");
     res.sendStatus(200);
+})
+
+app.post("/test", async (req, res, next) => {
+    subscriber.subscribe("resTest")
+    try {
+        publisher.publish("test", JSON.stringify({
+            message: "Hello world",
+        }));
+        subscriber.on("message", async (channel, message) => {
+            console.log("message resTest")
+            if (channel === "resTest") {
+                subscriber.unsubscribe();
+                let messageObj = JSON.parse(message);
+                res.status(messageObj.status).json(messageObj.text);
+                return;
+            }
+        });
+
+    } catch (e) {
+        console.error(e);
+        res.sendStatus(500);
+        return;
+    }
 });
 
 app.listen(port, () => {
@@ -185,8 +222,8 @@ async function giveToken(username: string, res: any) {
     try {
         let token = await jwt.sign({username: username}, process.env.TOKEN, {expiresIn: '20m'});
         let refreshToken = await jwt.sign({username: username}, process.env.REFRESH_TOKEN, {expiresIn: '14d'});
-        res.cookie("token", token, {domain: 'localhost', httpOnly: true, secure: true})
-            .cookie("refreshToken", refreshToken, {domain: 'localhost', httpOnly: true, secure: true});
+        res.cookie("token", token, {domain: 'localhost', httpOnly: true})
+            .cookie("refreshToken", refreshToken, {domain: 'localhost', httpOnly: true});
     } catch (e) {
         res.send("Error while generate tokens").status(500);
     }
@@ -197,11 +234,16 @@ async function middleware(req: any, res: any, next: any) {
     let token = sanitizer.escape(req.cookies.token);
     let refresh = sanitizer.escape(req.cookies.refreshToken);
 
+    if (!token || !refresh) {
+        res.sendStatus(403);
+        return;
+    }
+
     try {
         let decode = jwt.verify(token, process.env.TOKEN);
         let check = await findUser((<any>decode).username);
         if (!check) {
-            res.send("User not exist").status(422);
+            res.status(422).send("User not exist");
             return;
         }
         next();
@@ -210,13 +252,13 @@ async function middleware(req: any, res: any, next: any) {
             let decode = jwt.verify(refresh, process.env.REFRESH_TOKEN);
             let check = await findUser((<any>decode).username);
             if (!check) {
-                res.send("User not exist").status(422);
+                res.status(422).send("User not exist");
                 return;
             }
             await giveToken((<any>decode).username, res);
             next();
         } catch (e) {
-            res.send("Token isn't valid").status(422);
+            res.status(422).send("Token isn't valid");
             return;
         }
     }
