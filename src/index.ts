@@ -13,14 +13,15 @@ require('dotenv').config();
 const app = express();
 const port = 5000;
 const saltRounds = 10;
-const publisher = redis.createClient();
-const subscriber = redis.createClient();
+// const publisher = redis.createClient();
+// const subscriber = redis.createClient();
 
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser())
 
+// should add auto restart if db dont start in one try
 const sequelize = new Sequelize(`postgresql://${process.env.DB_USER}:${process.env.DB_PASS}@${process.env.DB_HOST}:5432/messenger`);
 
 const User = sequelize.define("users", {
@@ -190,28 +191,28 @@ app.get("/checkTokens", middleware, (req, res) => {
     res.sendStatus(200);
 })
 
-app.post("/test", async (req, res, next) => {
-    subscriber.subscribe("resTest")
-    try {
-        publisher.publish("test", JSON.stringify({
-            message: "Hello world",
-        }));
-        subscriber.on("message", async (channel, message) => {
-            console.log("message resTest")
-            if (channel === "resTest") {
-                subscriber.unsubscribe();
-                let messageObj = JSON.parse(message);
-                res.status(messageObj.status).json(messageObj.text);
-                return;
-            }
-        });
-
-    } catch (e) {
-        console.error(e);
-        res.sendStatus(500);
-        return;
-    }
-});
+// app.post("/test", async (req, res, next) => {
+//     subscriber.subscribe("resTest")
+//     try {
+//         publisher.publish("test", JSON.stringify({
+//             message: "Hello world",
+//         }));
+//         subscriber.on("message", async (channel, message) => {
+//             console.log("message resTest")
+//             if (channel === "resTest") {
+//                 subscriber.unsubscribe();
+//                 let messageObj = JSON.parse(message);
+//                 res.status(messageObj.status).json(messageObj.text);
+//                 return;
+//             }
+//         });
+//
+//     } catch (e) {
+//         console.error(e);
+//         res.sendStatus(500);
+//         return;
+//     }
+// });
 
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`);

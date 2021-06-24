@@ -1,0 +1,47 @@
+version: '3'
+
+services:
+  db:
+    image: postgres:13.3-alpine
+    container_name: db
+    restart: always
+    ports:
+      - 9090:5432
+    env_file: .env
+    environment:
+      - POSTGRES_PASSWORD=test
+      - POSTGRES_USER=pixel
+      - POSTGRES_DB=messenger
+      - PGDATA=/var/lib/postgresql/data
+    volumes:
+      - ./db:/var/lib/postgresql/data/
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: nodejs
+    container_name: server
+    restart: always
+    env_file: .env
+    environment:
+      - DB_HOST=db
+      - DB_USER=$DB_USER
+      - DB_PASS=$DB_PASS
+      - TOKEN=$TOKEN
+      - REFRESH_TOKEN=$REFRESH_TOKEN
+    ports:
+      - 5050:5050
+    volumes:
+      - .:/usr/src/app
+      - ./node_modules:/usr/src/app/node_modules
+    links:
+      - db
+  nginx:
+    image: nginx:1.21.0-alpine
+    container_name: nginx
+    volumes:
+      - ./default.conf:/etc/nginx/conf.d/default.conf
+    links:
+      - server
+    ports:
+      - 8080:8080
