@@ -35,4 +35,11 @@ export default class redisMs {
         return this.count++;
     }
 
+    public unsubscribe(channel: string, id: number) {
+        this.map.get(channel).delete(id);
+        if (this.map.get(channel).size === 0) {
+            this.map.delete(channel);
+        }
+    }
+
 }

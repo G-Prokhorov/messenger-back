@@ -6,15 +6,14 @@ import {DataTypes, Sequelize} from "sequelize";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
-import redis from "redis";
+import redisMs from "./microservice library/lib";
 
 require('dotenv').config();
 
 const app = express();
 const port = 5000;
 const saltRounds = 10;
-
-
+const pubSub = new redisMs();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
@@ -190,26 +189,10 @@ app.get("/checkTokens", middleware, (req, res) => {
 })
 
 app.post("/test", async (req, res, next) => {
-    subscriber.subscribe("resTest")
-    try {
-        publisher.publish("test", JSON.stringify({
-            message: "Hello world",
-        }));
-        subscriber.on("message", async (channel, message) => {
-            console.log("message resTest")
-            if (channel === "resTest") {
-                subscriber.unsubscribe();
-                let messageObj = JSON.parse(message);
-                res.status(messageObj.status).json(messageObj.text);
-                return;
-            }
-        });
-
-    } catch (e) {
-        console.error(e);
-        res.sendStatus(500);
-        return;
-    }
+    let id = pubSub.subscribe("resTest", () => {
+        res.sendStatus(200);
+    });
+    pubSub.publish("test", "hello", id);
 });
 
 app.listen(port, () => {
