@@ -11,7 +11,7 @@ import redisMs from "./microservice library/lib";
 require('dotenv').config();
 
 const app = express();
-const port = 5000;
+const port = 5050;
 const saltRounds = 10;
 const pubSub = new redisMs();
 
@@ -189,8 +189,9 @@ app.get("/checkTokens", middleware, (req, res) => {
 })
 
 app.post("/test", async (req, res, next) => {
-    let id = pubSub.subscribe("resTest", () => {
-        res.sendStatus(200);
+    let id = pubSub.subscribe("resTest", (status: number, message: string) => {
+        console.log(status)
+        res.status(status).send(message);
     });
     pubSub.publish("test", "hello", id);
 });

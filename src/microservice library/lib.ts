@@ -9,8 +9,15 @@ export default class redisMs {
     constructor() {
         this.publisher = redis.createClient();
         this.subscriber = redis.createClient();
-        this.subscriber.on("message", (channel: any, message: any) => {
-            console.log(`${channel}: ${message}`);
+        this.subscriber.on("message", (channel: string, message: string) => {
+            try {
+                let messageParse = JSON.parse(message);
+                this.map.get(channel).get(messageParse.id)(parseInt(messageParse.message.status), messageParse.message.message.toString());
+                this.unsubscribe(channel, messageParse.id);
+                console.log(this.map);
+            } catch (e) {
+                console.error("Error while catch message. " + e);
+            }
         });
     }
 
@@ -21,6 +28,7 @@ export default class redisMs {
             this.map.set(channel, new Map());
         }
         this.map.get(channel).set(id, cb);
+        console.log(this.map);
         return id;
     }
 

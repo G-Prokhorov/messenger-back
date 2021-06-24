@@ -4,20 +4,26 @@ let publisher = redis.createClient();
 const subscriber = redis.createClient();
 
 subscriber.on('message',  (channel, message) => {
-    switch (channel) {
-        case "login":
-            break;
-        case "register":
-            break;
-        case "test":
-            console.log("here")
-            publisher.publish("resTest", JSON.stringify({
-                status: 200,
-                text: {
-                    message: new Date().getMinutes(),
-                }
-            }))
-            break;
+    try {
+        switch (channel) {
+            case "login":
+                break;
+            case "register":
+                break;
+            case "test":
+                console.log("here")
+                let messageParse = JSON.parse(message);
+                publisher.publish("resTest", JSON.stringify({
+                    id: messageParse.id,
+                    message: {
+                        status: 200,
+                        message: new Date().getMinutes(),
+                    }
+                }))
+                break;
+        }
+    } catch (e) {
+        console.error("Error while test microservice. ", + e)
     }
 });
 subscriber.subscribe('test');
