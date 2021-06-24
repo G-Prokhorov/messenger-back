@@ -13,8 +13,7 @@ require('dotenv').config();
 const app = express();
 const port = 5000;
 const saltRounds = 10;
-const publisher = redis.createClient();
-const subscriber = redis.createClient();
+
 
 
 app.use(bodyParser.json());
