@@ -32,7 +32,7 @@ export default class redisMs {
         return id;
     }
 
-    public publish(channel: string, message: string, id: number):void {
+    public publish(channel: string, message: object, id: number):void {
         this.publisher.publish(channel, JSON.stringify({
             id: id,
             message: message,
