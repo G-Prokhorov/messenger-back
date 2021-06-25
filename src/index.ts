@@ -8,6 +8,8 @@ import cookieParser from "cookie-parser";
 import redisMs from "./microservice library/lib";
 import giveToken from "./token/give";
 import findUser from "./db/findUser";
+import setToken from "./token/set";
+import {DataTypes, Sequelize} from "sequelize";
 
 require('dotenv').config();
 
@@ -17,7 +19,25 @@ const pubSub = new redisMs();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(cookieParser())
+app.use(cookieParser());
+
+const sequelize = new Sequelize(`postgresql://${process.env.DB_USER}:${process.env.DB_PASS}@${process.env.DB_HOST}:5432/messenger`);
+
+const userModel = sequelize.define("users", {
+    username: {
+        type: DataTypes.TEXT,
+        allowNull: false,
+    },
+    password: {
+        type: DataTypes.TEXT,
+        allowNull: false,
+    },
+    name: {
+        type: DataTypes.TEXT,
+        allowNull: false,
+        defaultValue: 'Anonymous',
+    },
+});
 
 const corsOptions = {
     origin: "http://localhost:8080",
@@ -62,7 +82,7 @@ app.post("/login", async (req, res) => {
     try {
         let compare = await bcrypt.compare(password, result.getDataValue('password'))
         if (compare) {
-            await giveToken(username, res);
+            await giveToken(username);
             console.log("here");
             res.status(200).send("login");
         } else {
@@ -76,7 +96,17 @@ app.post("/login", async (req, res) => {
 });
 
 app.post("/register", async (req, res) => {
-
+    console.log("here")
+    let id = pubSub.subscribe("resRegister", (status: number, message: string) => {
+        console.log(message);
+        let tokens = JSON.parse(message);
+        let result = setToken(res, tokens);
+        if (result) {
+            res.status(status);
+        }
+        return;
+    });
+    pubSub.publish("register", req.body, id);
 });
 
 app.get("/checkUser", async (req, res) => {
@@ -107,13 +137,6 @@ app.get("/logout", (req, res) => res.clearCookie("token").clearCookie("refreshTo
 
 app.get("/checkTokens", middleware, (req, res) => res.sendStatus(200));
 
-app.post("/test", async (req, res, next) => {
-    let id = pubSub.subscribe("resTest", (status: number, message: string) => res.status(status).send(message));
-    pubSub.publish("test", {
-        text: "hello"
-    }, id);
-});
-
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`);
 });
@@ -143,7 +166,8 @@ async function middleware(req: any, res: any, next: any) {
                 res.status(422).send("User not exist");
                 return;
             }
-            await giveToken((<any>decode).username, res);
+            let tokens = await giveToken((<any>decode).username);
+            setToken(res, tokens);
             next();
         } catch (e) {
             res.status(422).send("Token isn't valid");

@@ -14,7 +14,6 @@ export default class redisMs {
                 let messageParse = JSON.parse(message);
                 this.map.get(channel).get(messageParse.id)(parseInt(messageParse.message.status), messageParse.message.message.toString());
                 this.unsubscribe(channel, messageParse.id);
-                console.log(this.map);
             } catch (e) {
                 console.error("Error while catch message. " + e);
             }
@@ -28,7 +27,6 @@ export default class redisMs {
             this.map.set(channel, new Map());
         }
         this.map.get(channel).set(id, cb);
-        console.log(this.map);
         return id;
     }
 
@@ -49,5 +47,4 @@ export default class redisMs {
             this.map.delete(channel);
         }
     }
-
 }

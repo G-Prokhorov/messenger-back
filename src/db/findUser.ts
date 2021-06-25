@@ -1,7 +1,8 @@
-import User from "./user_db";
+import UserModel from "./user_db";
 
 export default async function findUser(username: string) {
-    return await User.findOne({
+    let userModel = UserModel();
+    return await userModel.findOne({
         where: {
             username: username,
         },

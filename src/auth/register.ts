@@ -1,43 +1,58 @@
 import sanitizer from "sanitizer";
 import bcrypt from "bcrypt";
+import UserModel from "../db/user_db";
 
-const saltRounds = 10;
+import giveToken from "../token/give";
 
-export default async function register(req: any, publisher: any) {
+export default async function register(obj: any, publisher: any) {
+    let userModel = UserModel();
+    const saltRounds = 10;
     let username: string;
     let password: string;
     let confirm: string;
+    const id = obj.id;
+    const message = obj.message;
 
-    if (!req.body.username || !req.body.password || !req.body.confirm) {
-        res.sendStatus(400);
+    function post(status: number, messagePost: any = "nothing") {
+        publisher.publish("resRegister", JSON.stringify({
+            id: id,
+            message: {
+                status: status,
+                message: messagePost,
+            }
+        }));
+    }
+
+    if (!message.username || !message.password || !message.confirm) {
+        post(400);
         return;
     }
 
     let re = new RegExp("^[a-zA-Z0-9_.-]*$")
 
-    if (!re.test(String(req.body.username))) {
-        res.status(403).send("Password must not include special characters");
+    if (!re.test(String(message.username))) {
+        post(403, "Password must not include special characters");
         return;
     }
 
     try {
-        username = "@" + sanitizer.escape(req.body.username);
-        password = sanitizer.escape(req.body.password);
-        confirm = sanitizer.escape(req.body.confirm);
+        username = "@" + sanitizer.escape(message.username);
+        password = sanitizer.escape(message.password);
+        confirm = sanitizer.escape(message.confirm);
     } catch {
-        res.sendStatus(400);
+        post(400);
         return;
     }
 
     if ((username.length > 51) || (password.length > 30) || (password.length < 6) || (password !== confirm)) {
-        res.sendStatus(403);
+        post(403);
         return;
     }
 
     try {
         const salt = await bcrypt.genSalt(saltRounds);
         const hash = await bcrypt.hash(password, salt);
-        let result = await User.findOrCreate({
+        let result = await userModel.findOrCreate({
             where: {
                 username: username,
             },
@@ -47,18 +62,19 @@ export default async function register(req: any, publisher: any) {
         });
 
         if (!result.pop()) {
-            res.sendStatus(409);
+            post(409);
             return;
         }
     } catch (err) {
-        res.send("Error while register new user, " + err).status(500);
+        post(500, "Error while register new user, " + err);
         return;
     }
 
     try {
-        await giveToken(username, res);
+        let tokens = await giveToken(username);
+        post(200, tokens);
     } catch (e) {
-        res.send(e).status(500);
+        post(500, e)
     }
     return;
 }
