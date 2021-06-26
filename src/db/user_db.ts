@@ -1,9 +1,7 @@
-import {DataTypes, Sequelize} from "sequelize";
+import {DataTypes} from "sequelize";
 
 
-function UserModel() {
-    const sequelize = new Sequelize(`postgresql://${process.env.DB_USER}:${process.env.DB_PASS}@${process.env.DB_HOST}:5432/messenger`);
-
+function UserModel(sequelize:  any) {
     return sequelize.define("users", {
         username: {
             type: DataTypes.TEXT,
