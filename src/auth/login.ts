@@ -21,7 +21,7 @@ export default async function login(obj: any, publisher: any) {
         username = "@" + sanitizer.escape(message.username);
         password = sanitizer.escape(message.password);
     } catch {
-        post(400);
+        post(500);
         return;
     }
 
