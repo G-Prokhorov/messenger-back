@@ -10,17 +10,18 @@ export default class redisMs {
         this.publisher = redis.createClient();
         this.subscriber = redis.createClient();
         this.subscriber.on("message", (channel: string, message: string) => {
+            let messageParse = JSON.parse(message);
             try {
-                let messageParse = JSON.parse(message);
-                this.map.get(channel).get(messageParse.id)(parseInt(messageParse.message.status), messageParse.message.message);
+                this.map.get(channel).get(messageParse.id)(messageParse.err, JSON.parse(messageParse.message));
                 this.unsubscribe(channel, messageParse.id);
             } catch (e) {
                 console.error("Error while catch message. " + e);
+                this.map.get(channel).get(messageParse.id)("Server error", null);
             }
         });
     }
 
-    public subscribe(channel: string, cb: any):number {
+    public subscribe(channel: string, cb: any): number {
         let id = this.getId();
         this.subscriber.subscribe(channel);
         if (!this.map.has(channel)) {
@@ -30,14 +31,14 @@ export default class redisMs {
         return id;
     }
 
-    public publish(channel: string, message: object, id: number):void {
+    public publish(channel: string, message: object, id: number): void {
         this.publisher.publish(channel, JSON.stringify({
             id: id,
             message: message,
         }));
     }
 
-    private getId():number {
+    private getId(): number {
         return this.count++;
     }
 

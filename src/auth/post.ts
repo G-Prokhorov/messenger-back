@@ -1,11 +1,9 @@
-export default function post(id: number, channel: string, publisher: any) {
-    return (status: number, messagePost: any = "nothing") => {
+export default function post(id: number, publisher: any) {
+    return (channel: string, message: any = null, err: string = null) => {
         publisher.publish(channel, JSON.stringify({
             id: id,
-            message: {
-                status: status,
-                message: JSON.stringify(messagePost),
-            }
+            err: err,
+            message: JSON.stringify(message),
         }));
     }
 }

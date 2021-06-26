@@ -2,48 +2,36 @@ import sanitizer from "sanitizer";
 import findUser from "../db/findUser";
 import bcrypt from "bcrypt";
 import giveToken from "../token/give";
-import postFunc from "./post";
 
-export default async function login(obj: any, publisher: any) {
+export default async function login(body: any) {
     let username: string;
     let password: string;
-    const id = obj.id;
-    const message = obj.message;
-    console.log(message);
-    const post = postFunc(id, "resLogin", publisher);
 
-    if (!message.username || !message.password) {
-        post(400);
-        return;
+    if (!body.username || !body.password) {
+        throw new Error("Bad request");
     }
 
     try {
-        username = "@" + sanitizer.escape(message.username);
-        password = sanitizer.escape(message.password);
+        username = "@" + sanitizer.escape(body.username);
+        password = sanitizer.escape(body.password);
     } catch {
-        post(500);
-        return;
+        throw new Error("Server error");
     }
 
     let result = await findUser(username);
 
     if (!result) {
-        post(404);
-        return;
+        throw new Error("User not found");
     }
-
 
     try {
         let compare = await bcrypt.compare(password, result.getDataValue('password'))
         if (compare) {
-            let tokens = await giveToken(username);
-            post(200, tokens);
+            return await giveToken(username);
         } else {
-            post(401);
+            throw new Error();
         }
     } catch (e) {
-        post(500, "Error while login user. " + e);
+        throw new Error("Incorrect password");
     }
-
-    return;
 }

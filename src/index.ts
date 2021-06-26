@@ -45,13 +45,27 @@ app.post(["/register", "/login"], async (req, res) => {
         pub = "login";
     }
 
-    let id = pubSub.subscribe(sub, (status: number, message: string) => {
-        let tokens = JSON.parse(message);
-        console.log(status);
-        let result = setToken(res, tokens);
-        if (result) {
-            res.status(status);
+    let id = pubSub.subscribe(sub, (err: string, message: string) => {
+        if (err != null) {
+            console.log(err);
+            switch (err) {
+                case "Bad request":
+                    res.status(400);
+                    break;
+                case "User not found":
+                    res.status(404);
+                    break;
+                case "Incorrect password":
+                    res.status(403);
+                    break;
+                default:
+                    res.status(500);
+                    break
+            }
+            return res.send(err);
         }
+        let tokens = JSON.parse(message);
+        setToken(res, tokens);
         return res.end();
     });
     pubSub.publish(pub, req.body, id);

@@ -10,6 +10,6 @@ export default function setToken(res: any, tokens: any) {
         return true;
     }
 
-    res.send("Error while generate tokens").status(500);
+    res.status(500).send("Error while generate tokens");
     return false;
 }
