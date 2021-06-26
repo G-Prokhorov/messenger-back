@@ -12,7 +12,7 @@ export default class redisMs {
         this.subscriber.on("message", (channel: string, message: string) => {
             try {
                 let messageParse = JSON.parse(message);
-                this.map.get(channel).get(messageParse.id)(parseInt(messageParse.message.status), messageParse.message.message.toString());
+                this.map.get(channel).get(messageParse.id)(parseInt(messageParse.message.status), messageParse.message.message);
                 this.unsubscribe(channel, messageParse.id);
             } catch (e) {
                 console.error("Error while catch message. " + e);

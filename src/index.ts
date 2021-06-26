@@ -21,24 +21,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 
-const sequelize = new Sequelize(`postgresql://${process.env.DB_USER}:${process.env.DB_PASS}@${process.env.DB_HOST}:5432/messenger`);
-
-const userModel = sequelize.define("users", {
-    username: {
-        type: DataTypes.TEXT,
-        allowNull: false,
-    },
-    password: {
-        type: DataTypes.TEXT,
-        allowNull: false,
-    },
-    name: {
-        type: DataTypes.TEXT,
-        allowNull: false,
-        defaultValue: 'Anonymous',
-    },
-});
-
 const corsOptions = {
     origin: "http://localhost:8080",
     allowedHeaders: "Origin, X-Requested-With, Content-Type, Accept, Special-Request-Header",
@@ -52,61 +34,27 @@ app.get("/", (req, res) => {
     res.send("Hello, world!");
 });
 
-app.post("/login", async (req, res) => {
-    let username: string;
-    let password: string;
-
-    console.log(req.body);
-
-    if (!req.body.username || !req.body.password) {
-        res.sendStatus(400);
-        return;
+app.post(["/register", "/login"], async (req, res) => {
+    let pub: string;
+    let sub: string;
+    if (req.path === "/register") {
+        sub = "resRegister";
+        pub = "register";
+    } else {
+        sub = "resLogin";
+        pub = "login";
     }
 
-    try {
-        username = "@" + sanitizer.escape(req.body.username);
-        password = sanitizer.escape(req.body.password);
-    } catch {
-        res.sendStatus(400);
-        return;
-    }
-
-    let result = await findUser(username);
-
-    if (!result) {
-        res.sendStatus(404);
-        return;
-    }
-
-
-    try {
-        let compare = await bcrypt.compare(password, result.getDataValue('password'))
-        if (compare) {
-            await giveToken(username);
-            console.log("here");
-            res.status(200).send("login");
-        } else {
-            res.sendStatus(401);
-        }
-    } catch (e) {
-        res.send("Error while login user, " + e).status(500);
-    }
-
-    return;
-});
-
-app.post("/register", async (req, res) => {
-    console.log("here")
-    let id = pubSub.subscribe("resRegister", (status: number, message: string) => {
-        console.log(message);
+    let id = pubSub.subscribe(sub, (status: number, message: string) => {
         let tokens = JSON.parse(message);
+        console.log(status);
         let result = setToken(res, tokens);
         if (result) {
             res.status(status);
         }
-        return;
+        return res.end();
     });
-    pubSub.publish("register", req.body, id);
+    pubSub.publish(pub, req.body, id);
 });
 
 app.get("/checkUser", async (req, res) => {

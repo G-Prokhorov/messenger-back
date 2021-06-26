@@ -1,11 +1,11 @@
 import sanitizer from "sanitizer";
 import bcrypt from "bcrypt";
-import UserModel from "../db/user_db";
+import {userModel} from "../db/db";
 
 import giveToken from "../token/give";
+import postFunc from "./post";
 
 export default async function register(obj: any, publisher: any) {
-    let userModel = UserModel();
     const saltRounds = 10;
     let username: string;
     let password: string;
@@ -13,15 +13,7 @@ export default async function register(obj: any, publisher: any) {
     const id = obj.id;
     const message = obj.message;
 
-    function post(status: number, messagePost: any = "nothing") {
-        publisher.publish("resRegister", JSON.stringify({
-            id: id,
-            message: {
-                status: status,
-                message: messagePost,
-            }
-        }));
-    }
+    const post = postFunc(id, "resRegister", publisher);
 
     if (!message.username || !message.password || !message.confirm) {
         post(400);
