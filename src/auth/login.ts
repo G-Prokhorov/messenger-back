@@ -42,7 +42,7 @@ export default async function login(obj: any, publisher: any) {
             post(401);
         }
     } catch (e) {
-        post(500, "Error while login user, " + e);
+        post(500, "Error while login user. " + e);
     }
 
     return;
