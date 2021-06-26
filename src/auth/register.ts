@@ -3,42 +3,33 @@ import bcrypt from "bcrypt";
 import {userModel} from "../db/db";
 
 import giveToken from "../token/give";
-import postFunc from "./post";
 
-export default async function register(obj: any, publisher: any) {
+export default async function register(body: any) {
     const saltRounds = 10;
     let username: string;
     let password: string;
     let confirm: string;
-    const id = obj.id;
-    const message = obj.message;
 
-    const post = postFunc(id, "resRegister", publisher);
-
-    if (!message.username || !message.password || !message.confirm) {
-        post(400);
-        return;
+    if (!body.username || !body.password || !body.confirm) {
+        throw new Error("Bad request");
     }
 
     let re = new RegExp("^[a-zA-Z0-9_.-]*$")
 
-    if (!re.test(String(message.username))) {
-        post(403, "Password must not include special characters");
-        return;
+    if (!re.test(String(body.username))) {
+        throw new Error("User must not include special characters");
     }
 
     try {
-        username = "@" + sanitizer.escape(message.username);
-        password = sanitizer.escape(message.password);
-        confirm = sanitizer.escape(message.confirm);
+        username = "@" + sanitizer.escape(body.username);
+        password = sanitizer.escape(body.password);
+        confirm = sanitizer.escape(body.confirm);
     } catch {
-        post(400);
-        return;
+        throw new Error("Bad request");
     }
 
     if ((username.length > 51) || (password.length > 30) || (password.length < 6) || (password !== confirm)) {
-        post(403);
-        return;
+        throw new Error("Password does not meet the requirement");
     }
 
     try {
@@ -54,19 +45,18 @@ export default async function register(obj: any, publisher: any) {
         });
 
         if (!result.pop()) {
-            post(409);
-            return;
+            throw "User exist";
         }
-    } catch (err) {
-        post(500, "Error while register new user, " + err);
-        return;
+    }  catch (err) {
+        if (err === "User exist") {
+            throw new Error("User exist");
+        }
+        throw new Error("Server error");
     }
 
     try {
-        let tokens = await giveToken(username);
-        post(200, tokens);
+        return await giveToken(username);
     } catch (e) {
-        post(500, e)
+        throw new Error("Server error");
     }
-    return;
 }

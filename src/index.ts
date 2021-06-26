@@ -46,7 +46,7 @@ app.post(["/register", "/login"], async (req, res) => {
     }
 
     let id = pubSub.subscribe(sub, (err: string, message: string) => {
-        if (err != null) {
+        if (err !== 'success') {
             console.log(err);
             switch (err) {
                 case "Bad request":
@@ -64,8 +64,7 @@ app.post(["/register", "/login"], async (req, res) => {
             }
             return res.send(err);
         }
-        let tokens = JSON.parse(message);
-        setToken(res, tokens);
+        setToken(res, message);
         return res.end();
     });
     pubSub.publish(pub, req.body, id);

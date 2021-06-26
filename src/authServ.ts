@@ -21,8 +21,12 @@ subscriber.on('message', async (channel: string, message: string) => {
                 }
                 break;
             case "register":
-                console.log("here2")
-                // await register(messageParse, publisher);
+                try {
+                    let result =  await register(messageParse.message);
+                    post("resRegister", result);
+                } catch (e) {
+                    post("resRegister", null, e.message);
+                }
                 break;
         }
     } catch (e) {
