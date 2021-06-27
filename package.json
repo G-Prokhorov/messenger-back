@@ -4,7 +4,8 @@
   "description": "messenger back-end",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon",
+    "start": "nodemon --watch \"src/**\" --ext \"ts,json\" --ignore \"src/**/*.spec.ts\" --exec \"ts-node src/index.ts\"",
+    "auth": "nodemon --watch \"src/**\" --ext \"ts,json\" --ignore \"src/**/*.spec.ts\" --exec \"ts-node src/authServ.ts\"",
     "start debug": "nodemon --inspect=9229 dist/index.js"
   },
   "repository": {
