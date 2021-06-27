@@ -114,7 +114,7 @@ async function middleware(req: any, res: any, next: any) {
     let token = sanitizer.escape(req.cookies.token);
     let refresh = sanitizer.escape(req.cookies.refreshToken);
 
-    if (!token || !refresh) {
+    if (!token && !refresh) {
         res.sendStatus(403);
         return;
     }
