@@ -100,30 +100,8 @@ app.get("/checkUser", async (req, res) => {
     return;
 });
 
-app.get("/logout", (req, res) => res.clearCookie("token").clearCookie("refreshToken").status(200).send("clear"));
-
-// app.post("/test", async (req, res, next) => {
-//     subscriber.subscribe("resTest")
-//     try {
-//         publisher.publish("test", JSON.stringify({
-//             message: "Hello world",
-//         }));
-//         subscriber.on("message", async (channel, message) => {
-//             console.log("message resTest")
-//             if (channel === "resTest") {
-//                 subscriber.unsubscribe();
-//                 let messageObj = JSON.parse(message);
-//                 res.status(messageObj.status).json(messageObj.text);
-//                 return;
-//             }
-//         });
-//
-//     } catch (e) {
-//         console.error(e);
-//         res.sendStatus(500);
-//         return;
-//     }
-// });
+app.get("/logout", (req, res) => res.clearCookie("token")
+    .clearCookie("refreshToken").status(200).send("clear"));
 
 app.get("/checkTokens", middleware, (req, res) => res.sendStatus(200));
 
