@@ -1,11 +1,15 @@
 import {Sequelize} from "sequelize";
 import User from "./user_db";
+import Chat from "./chat_db";
+
 require('dotenv').config();
 
 const sequelize = new Sequelize(`postgresql://${process.env.DB_USER}:${process.env.DB_PASS}@${process.env.DB_HOST}:5432/messenger`);
 
-export const userModel = User(sequelize);
+const userModel = User(sequelize);
+const chatModel = Chat(sequelize);
 
-export default {
-    userModel
+export {
+    userModel,
+    chatModel
 };
