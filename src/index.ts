@@ -4,12 +4,13 @@ import cors from 'cors';
 import sanitizer from "sanitizer";
 import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
-import redisMs from "./microservice library/lib";
+import redisMs from "./ms_library/lib";
 import giveToken from "./token/give";
 import findUser from "./db/findUser";
 import setToken from "./token/set";
 import http from "http";
 import WebSocket from "ws";
+import checkTokens from "./token/checkTokens";
 
 require('dotenv').config();
 
@@ -130,12 +131,14 @@ webSocketServer.on('connection', async (ws, req) => {
         }
     });
 
-    console.log(token, refreshToken);
+    let username;
 
     try {
         let result = await checkTokens(token, refreshToken);
         if (result) {
-            console.log("new")
+            username = jwt.verify(result.token, process.env.TOKEN);
+        } else {
+            username = jwt.verify(token, process.env.TOKEN);
         }
     } catch (e) {
         ws.close(1003, e.message);
@@ -143,12 +146,12 @@ webSocketServer.on('connection', async (ws, req) => {
     }
 
     ws.on('message', m => {
-        webSocketServer.clients.forEach(client => client.send(m));
+        ws.send(m)
     });
 
     ws.on("error", e => ws.send(e));
 
-    ws.send('Hi there, I am a WebSocket server');
+    ws.send('Connect!');
 });
 
 server.listen(WSport, () => console.log("WebSocket started"));
@@ -194,28 +197,4 @@ async function middleware(req: any, res: any, next: any) {
 }
 
 
-async function checkTokens(token: string, refresh: string) {
-    try {
-        let decode = jwt.verify(token, process.env.TOKEN);
-        let check = await findUser((<any>decode).username);
-        if (!check) {
-            throw new Error("User not exist");
-        }
-        return null;
-    } catch (e) {
-        if (e.message === "User not exist") {
-            throw e;
-        }
 
-        try {
-            let decode = jwt.verify(refresh, process.env.REFRESH_TOKEN);
-            let check = await findUser((<any>decode).username);
-            if (!check) {
-                throw new Error("User not exist");
-            }
-            return await giveToken((<any>decode).username);
-        } catch (e) {
-            throw new Error(e.message === "User not exist" ? "User not exist" : "Token isn't valid");
-        }
-    }
-}
