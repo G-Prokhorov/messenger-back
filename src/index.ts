@@ -43,7 +43,7 @@ app.get("/", (req, res) => {
     res.send("Hello, world!");
 });
 
-app.post(["/register", "/login"], async (req, res) => {
+app.post(["/register", "/login"], (req, res) => {
     let pub: string;
     let sub: string;
     if (req.path === "/register") {
@@ -108,6 +108,32 @@ app.get("/logout", (req, res) => res.clearCookie("token")
 
 app.get("/checkTokens", middleware, (req, res) => res.sendStatus(200));
 
+app.post("/createChat", middleware, (req, res) => {
+    const id = pubSub.subscribe("resCreateChat", (err: string, message: string) => {
+        if (err !== 'success') {
+            switch (err) {
+                case "Not enough users":
+                    res.status(400);
+                    break;
+                case "User or users not found":
+                    res.status(403);
+                    break;
+                default:
+                    res.status(500);
+                    break
+            }
+            return res.send(err);
+        }
+
+        if (message) {
+            return res.status(200).send(message);
+        }
+
+        return res.sendStatus(200);
+    });
+
+    pubSub.publish("createChat", req.body, id);
+})
 
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`);
