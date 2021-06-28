@@ -8,13 +8,15 @@ import redisMs from "./microservice library/lib";
 import giveToken from "./token/give";
 import findUser from "./db/findUser";
 import setToken from "./token/set";
+import http from "http";
+import WebSocket from "ws";
 
 require('dotenv').config();
 
 const app = express();
 
 const port = 5050;
-
+const WSport = 5055;
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
@@ -110,37 +112,110 @@ app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`);
 });
 
-async function middleware(req: any, res: any, next: any) {
-    let token = sanitizer.escape(req.cookies.token);
-    let refresh = sanitizer.escape(req.cookies.refreshToken);
 
+///// WS ///////
+const server = http.createServer(app);
+
+const webSocketServer = new WebSocket.Server({server});
+
+webSocketServer.on('connection', async (ws, req) => {
+    let cookie = sanitizer.escape(req.headers.cookie);
+    let token = null, refreshToken = null;
+    cookie.split(";").forEach(str => {
+        let nameCookie = str.split("=")[0];
+        if (nameCookie.includes("token")) {
+            token = str.split("=")[1].replace(";", "");
+        } else if (nameCookie.includes("refreshToken")) {
+            refreshToken = str.split("=")[1].replace(";", "");
+        }
+    });
+
+    console.log(token, refreshToken);
+
+    try {
+        let result = await checkTokens(token, refreshToken);
+        if (result) {
+            console.log("new")
+        }
+    } catch (e) {
+        ws.close(1003, e.message);
+        return;
+    }
+
+    ws.on('message', m => {
+        webSocketServer.clients.forEach(client => client.send(m));
+    });
+
+    ws.on("error", e => ws.send(e));
+
+    ws.send('Hi there, I am a WebSocket server');
+});
+
+server.listen(WSport, () => console.log("WebSocket started"));
+
+///// WS ///////
+
+async function middleware(req: any, res: any, next: any) {
+    let token;
+    let refresh;
+    try {
+        token = sanitizer.escape(req.cookies.token);
+        refresh = sanitizer.escape(req.cookies.refreshToken);
+    } catch (e) {
+        res.sendStatus(500);
+        return;
+    }
     if (!token && !refresh) {
         res.sendStatus(403);
         return;
     }
 
     try {
-        let decode = jwt.verify(token, process.env.TOKEN);
-        let check = await findUser((<any>decode).username);
-        if (!check) {
-            res.status(422).send("User not exist");
-            return;
+        let result = await checkTokens(token, refresh);
+        if (result) {
+            setToken(res, result);
         }
         next();
     } catch (e) {
+        switch (e.message) {
+            case "User not exist":
+                res.status(422).send(e.message);
+                break;
+            case "Token isn't valid":
+                res.status(403).send(e.message);
+                break;
+            default:
+                res.sendStatus(500);
+                break;
+        }
+        return
+    }
+
+}
+
+
+async function checkTokens(token: string, refresh: string) {
+    try {
+        let decode = jwt.verify(token, process.env.TOKEN);
+        let check = await findUser((<any>decode).username);
+        if (!check) {
+            throw new Error("User not exist");
+        }
+        return null;
+    } catch (e) {
+        if (e.message === "User not exist") {
+            throw e;
+        }
+
         try {
             let decode = jwt.verify(refresh, process.env.REFRESH_TOKEN);
             let check = await findUser((<any>decode).username);
             if (!check) {
-                res.status(422).send("User not exist");
-                return;
+                throw new Error("User not exist");
             }
-            let tokens = await giveToken((<any>decode).username);
-            setToken(res, tokens);
-            next();
+            return await giveToken((<any>decode).username);
         } catch (e) {
-            res.status(422).send("Token isn't valid");
-            return;
+            throw new Error(e.message === "User not exist" ? "User not exist" : "Token isn't valid");
         }
     }
 }
