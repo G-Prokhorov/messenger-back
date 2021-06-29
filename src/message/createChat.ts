@@ -59,8 +59,7 @@ export default async function createChat(users: any) {
         throw new Error("Server error");
     }
 
-    console.log(check.length);
-    if (check) {
+    if (check.length !== 0) {
         throw new Error("Chat already exist");
     }
 
