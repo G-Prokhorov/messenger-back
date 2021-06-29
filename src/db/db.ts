@@ -1,6 +1,7 @@
 import {Sequelize} from "sequelize";
 import User from "./user_db";
 import Chat from "./chat_db";
+import Messages from "./message_db";
 
 require('dotenv').config();
 
@@ -8,8 +9,10 @@ const sequelize = new Sequelize(`postgresql://${process.env.DB_USER}:${process.e
 
 const userModel = User(sequelize);
 const chatModel = Chat(sequelize);
+const messageModel = Messages(sequelize)
 
 export {
     userModel,
-    chatModel
+    chatModel,
+    messageModel
 };

@@ -1,6 +1,8 @@
 import redis from "redis";
 import postFunc from "./auth/post";
 import createChat from "./message/createChat";
+import sendMessage from "./message/sendMessage";
+import sanitizer from "sanitizer";
 
 const publisher = redis.createClient();
 const subscriber = redis.createClient();
@@ -19,10 +21,22 @@ subscriber.on('message', async (channel: string, message: string) => {
                     post("resCreateChat", null, e.message)
                 }
                 break;
+            case "sendMessage":
+
+                try {
+                    await sendMessage(messageParse.message);
+                } catch (e) {
+                    try {
+                        let user = sanitizer.escape(messageParse.message.sender);
+                        post(user, null, e.message);
+                    } catch (e) {
+                        console.error(e);
+                    }
+                }
         }
     } catch (e) {
-        console.error("Error in message microservice. ", + e)
+        console.error("Error in message microservice. ", +e)
     }
 });
 
-subscriber.subscribe('createChat');
+subscriber.subscribe('createChat', 'sendMessage');

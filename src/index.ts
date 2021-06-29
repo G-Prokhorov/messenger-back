@@ -4,8 +4,7 @@ import cors from 'cors';
 import sanitizer from "sanitizer";
 import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
-import redisMs from "./ms_library/lib";
-import giveToken from "./token/give";
+import redisMs from "./my_library/lib_pubSub";
 import findUser from "./db/findUser";
 import setToken from "./token/set";
 import http from "http";
@@ -112,11 +111,14 @@ app.post("/createChat", middleware, (req, res) => {
     const id = pubSub.subscribe("resCreateChat", (err: string, message: string) => {
         if (err !== 'success') {
             switch (err) {
-                case "Not enough users":
+                case "Not enough or too much users":
                     res.status(400);
                     break;
                 case "User or users not found":
                     res.status(403);
+                    break;
+                case "Chat already exist":
+                    res.status(409);
                     break;
                 default:
                     res.status(500);
@@ -133,6 +135,12 @@ app.post("/createChat", middleware, (req, res) => {
     });
 
     pubSub.publish("createChat", req.body, id);
+})
+
+app.post("/sendMessage", (req, res) => {
+    console.log(req.body)
+    pubSub.publish("sendMessage", req.body);
+    res.sendStatus(200);
 })
 
 app.listen(port, () => {
@@ -157,22 +165,52 @@ webSocketServer.on('connection', async (ws, req) => {
         }
     });
 
-    let username;
+    let decode:any;
 
     try {
         let result = await checkTokens(token, refreshToken);
         if (result) {
-            username = jwt.verify(result.token, process.env.TOKEN);
+            decode = jwt.verify(result.token, process.env.TOKEN);
         } else {
-            username = jwt.verify(token, process.env.TOKEN);
+            decode = jwt.verify(token, process.env.TOKEN);
         }
     } catch (e) {
         ws.close(1003, e.message);
         return;
     }
 
-    ws.on('message', m => {
-        ws.send(m)
+    let id:number = pubSub.subscribe((<any>decode).username, (err:string, obj:any) => {
+        if (err !== "success") {
+            ws.send("Error. " + err);
+            return;
+        }
+
+        ws.send(obj.message + ", " + obj.chatId);
+    }, true);
+
+    ws.on('message', (m:string) => {
+        let parse: any;
+        try {
+            parse = JSON.parse(m)
+            if (!parse.chatId || !parse.message) {
+                throw new Error("Bad request");
+            }
+        } catch {
+            ws.send("Bad request");
+            return;
+        }
+        pubSub.publish("sendMessage", {
+            sender: (<any>decode).username,
+            ...parse
+        });
+    });
+
+    ws.on("close", () => {
+        try {
+            pubSub.unsubscribe((<any>decode).username, id)
+        } catch (e) {
+            console.error("Error when close ws. " + e)
+        }
     });
 
     ws.on("error", e => ws.send(e));

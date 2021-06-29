@@ -1,5 +1,4 @@
 import redis from "redis";
-import checkTokens from "../token/checkTokens";
 
 export default class redisMs {
     private publisher: any;
@@ -13,11 +12,12 @@ export default class redisMs {
         this.subscriber = redis.createClient();
         this.subscriber.on("message", (channel: string, message: string) => {
             let messageParse = JSON.parse(message);
+            console.log(messageParse);
             if (this.users.has(channel)) {
                 let all = this.map.get(channel);
                 all.forEach((cb: any) => {
                     try {
-                        cb(messageParse.err, JSON.parse(messageParse.message))
+                        cb(messageParse.err, messageParse.message)
                     } catch (e) {
                         cb("Server error", null)
                     }
