@@ -3,7 +3,7 @@ import {DataTypes} from "sequelize";
 function ChatModel(sequelize:  any) {
     return sequelize.define("chats", {
         id_chat: {
-            type: DataTypes.BIGINT,
+            type: DataTypes.TEXT,
             allowNull: false,
         },
         read: {
