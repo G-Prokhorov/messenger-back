@@ -1,7 +1,7 @@
 import findUser from "../db/findUser";
 import sanitizer from "sanitizer";
 import {chatModel, messageModel, userModel} from "../db/db";
-import {Op} from "sequelize";
+import sequelize, {Op} from "sequelize";
 import redis from "redis";
 
 const publisher = redis.createClient();
@@ -74,6 +74,7 @@ export default async function sendMessage(body: any) {
     try {
         updated = await chatModel.update({
             read: false,
+            numberOfUnread: sequelize.literal("\"numberOfUnread\" + 1"),
         }, {
             where: {
                 [Op.and]: [
@@ -87,7 +88,8 @@ export default async function sendMessage(body: any) {
             },
             returning: true,
         });
-    } catch {
+    } catch (e) {
+        console.error(e)
         throw new Error("Cannot update chat");
     }
     try {

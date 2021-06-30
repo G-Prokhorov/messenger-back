@@ -15,6 +15,10 @@ function ChatModel(sequelize:  any) {
             type: DataTypes.INTEGER,
             allowNull: false,
         },
+        numberOfUnread: {
+            type: DataTypes.INTEGER,
+            defaultValue: 0,
+        },
     });
 }
 
