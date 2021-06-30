@@ -186,7 +186,7 @@ webSocketServer.on('connection', async (ws, req) => {
         }
 
         ws.send(obj.message + ", " + obj.chatId);
-    }, true);
+    });
 
     ws.on('message', (m:string) => {
         let parse: any;
