@@ -2,12 +2,9 @@ import express from 'express';
 import bodyParser from "body-parser";
 import cors from 'cors';
 import sanitizer from "sanitizer";
-import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
 import findUser from "./db/findUser";
 import setToken from "./token/set";
-import http from "http";
-import WebSocket from "ws";
 import checkTokens from "./token/checkTokens";
 import lib_PubSub from "./my_library/lib_PubSub";
 import microServCB from "./my_library/microServCB";
@@ -17,7 +14,6 @@ require('dotenv').config();
 const app = express();
 
 const port = 5050;
-const WSport = 5055;
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
@@ -146,81 +142,6 @@ app.post("/sendMessage", (req, res) => {
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`);
 });
-
-
-///// WS ///////
-const server = http.createServer(app);
-
-const webSocketServer = new WebSocket.Server({server});
-
-webSocketServer.on('connection', async (ws, req) => {
-    let cookie = sanitizer.escape(req.headers.cookie);
-    let token = null, refreshToken = null;
-    cookie.split(";").forEach(str => {
-        let nameCookie = str.split("=")[0];
-        if (nameCookie.includes("token")) {
-            token = str.split("=")[1].replace(";", "");
-        } else if (nameCookie.includes("refreshToken")) {
-            refreshToken = str.split("=")[1].replace(";", "");
-        }
-    });
-
-    let decode:any;
-
-    try {
-        let result = await checkTokens(token, refreshToken);
-        if (result) {
-            decode = jwt.verify(result.token, process.env.TOKEN);
-        } else {
-            decode = jwt.verify(token, process.env.TOKEN);
-        }
-    } catch (e) {
-        ws.close(1003, e.message);
-        return;
-    }
-
-    let id:number = pubSub.subscribe((<any>decode).username, (err:string, obj:any) => {
-        if (err !== "success") {
-            ws.send("Error. " + err);
-            return;
-        }
-
-        ws.send(obj.message + ", " + obj.chatId);
-    });
-
-    ws.on('message', (m:string) => {
-        let parse: any;
-        try {
-            parse = JSON.parse(m)
-            if (!parse.chatId || !parse.message) {
-                throw new Error("Bad request");
-            }
-        } catch {
-            ws.send("Bad request");
-            return;
-        }
-        pubSub.publish("sendMessage", {
-            sender: (<any>decode).username,
-            ...parse
-        });
-    });
-
-    ws.on("close", () => {
-        try {
-            pubSub.unsubscribe((<any>decode).username, id)
-        } catch (e) {
-            console.error("Error when close ws. " + e)
-        }
-    });
-
-    ws.on("error", e => ws.send(e));
-
-    ws.send('Connect!');
-});
-
-server.listen(WSport, () => console.log("WebSocket started"));
-
-///// WS ///////
 
 async function middleware(req: any, res: any, next: any) {
     let token;
