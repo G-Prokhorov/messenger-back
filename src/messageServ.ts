@@ -22,7 +22,6 @@ subscriber.on('message', async (channel: string, message: string) => {
                 }
                 break;
             case "sendMessage":
-
                 try {
                     let users = await sendMessage(messageParse.message);
                     users.forEach((value: any) => {
