@@ -10,6 +10,7 @@ export default class lib_PubSub {
         this.publisher = redis.createClient();
         this.subscriber = redis.createClient();
         this.subscriber.on("message", async (channel: string, message: string) => {
+            console.log(this.map);
             if (this.map.has(channel)) {
                 let messageParse = JSON.parse(message);
                 await cb.call(this, channel, messageParse);
@@ -18,6 +19,7 @@ export default class lib_PubSub {
     }
 
     public subscribe(channel: string, cb: any): number {
+        console.log(this.map);
         let id = this.getId();
         this.subscriber.subscribe(channel);
         if (!this.map.has(channel)) {

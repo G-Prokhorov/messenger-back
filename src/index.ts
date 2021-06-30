@@ -8,6 +8,8 @@ import setToken from "./token/set";
 import checkTokens from "./token/checkTokens";
 import lib_PubSub from "./my_library/lib_PubSub";
 import microServCB from "./my_library/microServCB";
+import middleware from "./middleware";
+import jwt from "jsonwebtoken";
 
 require('dotenv').config();
 
@@ -131,55 +133,57 @@ app.post("/createChat", middleware, (req, res) => {
     });
 
     pubSub.publish("createChat", req.body, id);
-})
+});
 
-app.post("/sendMessage", (req, res) => {
-    console.log(req.body)
-    pubSub.publish("sendMessage", req.body);
-    res.sendStatus(200);
-})
+app.post("/getMessage", (req, res) => {
+    let decode: any;
+
+    try {
+        decode = jwt.verify(req.cookies.token, process.env.TOKEN);
+    } catch (e) {
+        try {
+            decode = jwt.verify(req.cookies.refreshToken, process.env.TOKEN);
+        } catch (e) {
+            return res.sendStatus(500);
+        }
+    }
+
+    if (!decode) {
+        return res.sendStatus(403);
+    }
+
+    const id = pubSub.subscribe("resGetMessage", async (err: string, message: string) => {
+        console.log("here")
+        if (err !== 'success') {
+            switch (err) {
+                case "Forbidden":
+                    res.status(403);
+                    break;
+                case "Bad request":
+                    res.status(400);
+                    break;
+                case "User not exist":
+                    res.status(404);
+                    break;
+                case "Message isn't exist":
+                    res.status(404);
+                    break;
+                default:
+                    res.status(500);
+                    break
+            }
+            return res.send(err);
+        }
+
+       return res.status(200).send(message);
+    });
+
+    pubSub.publish("getMessage", {
+        sender: (<any>decode).username,
+        ...req.body
+    }, id);
+});
 
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`);
 });
-
-async function middleware(req: any, res: any, next: any) {
-    let token;
-    let refresh;
-    try {
-        token = sanitizer.escape(req.cookies.token);
-        refresh = sanitizer.escape(req.cookies.refreshToken);
-    } catch (e) {
-        res.sendStatus(500);
-        return;
-    }
-    if (!token && !refresh) {
-        res.sendStatus(403);
-        return;
-    }
-
-    try {
-        let result = await checkTokens(token, refresh);
-        if (result) {
-            setToken(res, result);
-        }
-        next();
-    } catch (e) {
-        switch (e.message) {
-            case "User not exist":
-                res.status(422).send(e.message);
-                break;
-            case "Token isn't valid":
-                res.status(403).send(e.message);
-                break;
-            default:
-                res.sendStatus(500);
-                break;
-        }
-        return
-    }
-
-}
-
-
-

@@ -3,8 +3,8 @@ import sanitizer from "sanitizer";
 import {chatModel, messageModel, userModel} from "../db/db";
 import sequelize, {Op} from "sequelize";
 import redis from "redis";
+import checkChat from "../db/checkChat";
 
-const publisher = redis.createClient();
 
 export default async function sendMessage(body: any) {
     if (!body.message || !body.sender || !body.chatId) {
@@ -21,14 +21,10 @@ export default async function sendMessage(body: any) {
         throw new Error("Server error");
     }
 
-    if (!sender || !message || !chatId) {
-        throw new Error("Bad request");
-    }
-
     let user;
 
     try {
-        user = await findUser(body.sender);
+        user = await findUser(sender);
     } catch {
         throw new Error("Server error");
     }
@@ -38,23 +34,7 @@ export default async function sendMessage(body: any) {
     }
 
     try {
-        let checkChat = await chatModel.findAll({
-            attribute: ['id_chat', 'id_user'],
-            where: {
-                [Op.and]: [
-                    {
-                        id_chat: chatId,
-                    },
-                    {
-                        id_user: user.id,
-                    }
-                ]
-            }
-        });
-
-        if (checkChat.length === 0) {
-            throw new Error("Forbidden");
-        }
+        await checkChat(chatId, user.id);
     } catch {
         throw new Error("Forbidden");
     }
