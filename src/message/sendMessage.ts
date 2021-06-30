@@ -101,26 +101,15 @@ export default async function sendMessage(body: any) {
             }
         });
 
-        let users = await userModel.findAll({
+        let users: any = await userModel.findAll({
             where: {
                 [Op.or]: updatedID,
             },
             attribute: ["username"]
         });
 
-        users.forEach((value: any) => {
-            publisher.publish(value.username, JSON.stringify({
-                err: "success",
-                message: {
-                    message: message,
-                    chatId: chatId,
-                }
-            }));
-        });
+        return users;
     } catch {
         throw new Error("Users are not notified");
     }
-
-
-    return;
 }

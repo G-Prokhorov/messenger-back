@@ -24,7 +24,16 @@ subscriber.on('message', async (channel: string, message: string) => {
             case "sendMessage":
 
                 try {
-                    await sendMessage(messageParse.message);
+                    let users = await sendMessage(messageParse.message);
+                    users.forEach((value: any) => {
+                        publisher.publish(value.username, JSON.stringify({
+                            err: "success",
+                            message: {
+                                message: message,
+                                chatId: messageParse.message.chatId,
+                            }
+                        }));
+                    });
                 } catch (e) {
                     try {
                         let user = sanitizer.escape(messageParse.message.sender);
