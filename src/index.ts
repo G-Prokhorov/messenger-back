@@ -4,12 +4,13 @@ import cors from 'cors';
 import sanitizer from "sanitizer";
 import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
-import redisMs from "./my_library/lib_pubSub";
 import findUser from "./db/findUser";
 import setToken from "./token/set";
 import http from "http";
 import WebSocket from "ws";
 import checkTokens from "./token/checkTokens";
+import lib_PubSub from "./my_library/lib_PubSub";
+import microServCB from "./my_library/microServCB";
 
 require('dotenv').config();
 
@@ -20,10 +21,9 @@ const WSport = 5055;
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(cookieParser())
+app.use(cookieParser());
 
-
-const pubSub = new redisMs();
+const pubSub = new lib_PubSub(microServCB);
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));

@@ -1,14 +1,20 @@
 import redis from "redis";
 
-export default class parent {
+export default class lib_PubSub {
     protected publisher: any;
     protected subscriber: any;
     protected map = new Map();
     protected count: number = 0;
 
-    constructor() {
+    constructor(cb:any) {
         this.publisher = redis.createClient();
         this.subscriber = redis.createClient();
+        this.subscriber.on("message", async (channel: string, message: string) => {
+            if (this.map.has(channel)) {
+                let messageParse = JSON.parse(message);
+                await cb.call(this, channel, messageParse);
+            }
+        });
     }
 
     public subscribe(channel: string, cb: any): number {
@@ -32,7 +38,7 @@ export default class parent {
         return this.count++;
     }
 
-    public unsubscribe(channel: string, id: number):boolean {
+    public unsubscribe(channel: string, id: number): boolean {
         this.map.get(channel).delete(id);
         if (this.map.get(channel).size === 0) {
             this.map.delete(channel);
