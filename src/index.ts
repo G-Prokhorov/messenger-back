@@ -5,11 +5,10 @@ import sanitizer from "sanitizer";
 import cookieParser from "cookie-parser";
 import findUser from "./db/findUser";
 import setToken from "./token/set";
-import checkTokens from "./token/checkTokens";
 import lib_PubSub from "./my_library/lib_PubSub";
 import microServCB from "./my_library/microServCB";
 import middleware from "./middleware";
-import jwt from "jsonwebtoken";
+import sanitizeMiddleware from "./sanitizeMiddleware";
 
 require('dotenv').config();
 
@@ -26,6 +25,7 @@ const pubSub = new lib_PubSub(microServCB);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
+app.use(sanitizeMiddleware);
 
 const corsOptions = {
     origin: "http://localhost:8080",
@@ -159,7 +159,7 @@ app.post("/getMessage", middleware, (req, res) => {
             return res.send(err);
         }
 
-       return res.status(200).send(message);
+        return res.status(200).send(message);
     });
 
     pubSub.publish("getMessage", {

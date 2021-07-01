@@ -3,6 +3,7 @@ import checkTokens from "./token/checkTokens";
 import setToken from "./token/set";
 
 export default async function middleware(req: any, res: any, next: any) {
+    console.log("middleware");
     let token;
     let refresh;
     try {
