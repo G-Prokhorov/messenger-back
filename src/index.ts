@@ -1,14 +1,13 @@
 import express from 'express';
 import bodyParser from "body-parser";
 import cors from 'cors';
-import sanitizer from "sanitizer";
 import cookieParser from "cookie-parser";
 import findUser from "./db/findUser";
 import setToken from "./token/set";
 import lib_PubSub from "./my_library/lib_PubSub";
 import microServCB from "./my_library/microServCB";
-import middleware from "./middleware";
-import sanitizeMiddleware from "./sanitizeMiddleware";
+import middleware from "./middleware/middleware";
+import sanitizeMiddleware from "./middleware/sanitizeMiddleware";
 
 require('dotenv').config();
 
@@ -19,13 +18,10 @@ const port = 5050;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
+app.use(sanitizeMiddleware);
 
 const pubSub = new lib_PubSub(microServCB);
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: true}));
-app.use(cookieParser());
-app.use(sanitizeMiddleware);
 
 const corsOptions = {
     origin: "http://localhost:8080",
@@ -85,7 +81,7 @@ app.get("/checkUser", async (req, res) => {
     }
 
     try {
-        username = "@" + sanitizer.escape(String(req.query.username));
+        username = "@" + req.query.username;
     } catch {
         res.sendStatus(400);
         return;

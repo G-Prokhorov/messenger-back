@@ -1,4 +1,3 @@
-import sanitizer from "sanitizer";
 import {messageModel} from "../db/db";
 import checkChat from "../db/checkChat";
 import findUser from "../db/findUser";
@@ -8,15 +7,7 @@ export default async function getMessage(body: any) {
         throw new Error("Bad request");
     }
 
-    let start: string, chatId: string, sender: string;
-
-    try {
-        start = sanitizer.escape(body.start);
-        chatId = sanitizer.escape(body.chatId);
-        sender = sanitizer.escape(body.sender);
-    } catch {
-        throw new Error("Server error");
-    }
+    let start: string = body.start, chatId: string = body.chatId, sender: string = body.sender;
 
     let user;
 

@@ -1,4 +1,3 @@
-import sanitizer from "sanitizer";
 import findUser from "../db/findUser";
 import checkChat from "../db/checkChat";
 import updateNumberMes from "../db/updateNumberMes";
@@ -9,15 +8,7 @@ export default async function markRead(body: any) {
         throw new Error("Bad request");
     }
 
-    let value: string, chatId: string, username: string;
-
-    try {
-        value = sanitizer.escape(body.value);
-        chatId = sanitizer.escape(body.chatId);
-        username = sanitizer.escape(body.username);
-    } catch {
-        throw new Error("Server error");
-    }
+    let value: string = body.value, chatId: string = body.chatId, username: string = body.username;
 
     let user;
 

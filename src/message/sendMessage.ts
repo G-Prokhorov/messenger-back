@@ -1,8 +1,7 @@
 import findUser from "../db/findUser";
 import sanitizer from "sanitizer";
-import {chatModel, messageModel, userModel} from "../db/db";
-import sequelize, {Op} from "sequelize";
-import redis from "redis";
+import { messageModel, userModel} from "../db/db";
+import {Op} from "sequelize";
 import checkChat from "../db/checkChat";
 import updateNumberMes from "../db/updateNumberMes";
 

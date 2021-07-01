@@ -25,21 +25,17 @@ webSocketServer.on('connection', async (ws, req) => {
         }
     });
 
-    let decode:any;
+    let username:string;
 
     try {
-        let result = await checkTokens(token, refreshToken);
-        if (result) {
-            decode = jwt.verify(result.token, process.env.TOKEN);
-        } else {
-            decode = jwt.verify(token, process.env.TOKEN);
-        }
+        let [result, decode] = await checkTokens(token, refreshToken);
+        username = decode;
     } catch (e) {
         ws.close(1003, e.message);
         return;
     }
 
-    let id:number = pubSub.subscribe((<any>decode).username, (err:string, obj:any) => {
+    let id:number = pubSub.subscribe(username, (err:string, obj:any) => {
         if (err !== "success") {
             ws.send("Error. " + err);
             return;
@@ -60,14 +56,14 @@ webSocketServer.on('connection', async (ws, req) => {
             return;
         }
         pubSub.publish("sendMessage", {
-            sender: (<any>decode).username,
+            sender: username,
             ...parse
         });
     });
 
     ws.on("close", () => {
         try {
-            pubSub.unsubscribe((<any>decode).username, id)
+            pubSub.unsubscribe(username, id)
         } catch (e) {
             console.error("Error when close ws. " + e)
         }
