@@ -14,5 +14,6 @@ const messageModel = Messages(sequelize)
 export {
     userModel,
     chatModel,
-    messageModel
+    messageModel,
+    sequelize
 };

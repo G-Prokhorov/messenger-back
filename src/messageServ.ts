@@ -5,6 +5,7 @@ import sendMessage from "./message/sendMessage";
 import sanitizer from "sanitizer";
 import getMessage from "./message/getMessage";
 import markRead from "./message/markRead";
+import getChats from "./message/getChats";
 
 const publisher = redis.createClient();
 const subscriber = redis.createClient();
@@ -46,7 +47,7 @@ subscriber.on('message', async (channel: string, message: string) => {
                     let messages = await getMessage(messageParse.message);
                     post("resGetMessage", messages);
                 } catch (e) {
-                    post("resGetMessage", null, e.message)
+                    post("resGetMessage", null, e.message);
                 }
                 break;
             case "markRead":
@@ -54,7 +55,17 @@ subscriber.on('message', async (channel: string, message: string) => {
                     await markRead(messageParse.message);
                     post("resMarkRead", "Okay");
                 } catch (e) {
-                    post("resMarkRead", null, e.message)
+                    post("resMarkRead", null, e.message);
+                }
+                break;
+            case "getChats":
+                console.log(messageParse)
+                try {
+                    let chats = await getChats(messageParse.message.username);
+                    post("resGetChats", chats);
+                } catch (e) {
+                    console.error(e.message);
+                    post("resGetChats", null, e.message);
                 }
         }
     } catch (e) {
@@ -62,4 +73,4 @@ subscriber.on('message', async (channel: string, message: string) => {
     }
 });
 
-subscriber.subscribe('createChat', 'sendMessage', 'getMessage', 'markRead');
+subscriber.subscribe('createChat', 'sendMessage', 'getMessage', 'markRead', 'getChats');
