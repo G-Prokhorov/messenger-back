@@ -4,6 +4,7 @@ import {chatModel, messageModel, userModel} from "../db/db";
 import sequelize, {Op} from "sequelize";
 import redis from "redis";
 import checkChat from "../db/checkChat";
+import updateNumberMes from "../db/updateNumberMes";
 
 
 export default async function sendMessage(body: any) {
@@ -52,22 +53,7 @@ export default async function sendMessage(body: any) {
     let updated: any;
 
     try {
-        updated = await chatModel.update({
-            read: false,
-            numberOfUnread: sequelize.literal("\"numberOfUnread\" + 1"),
-        }, {
-            where: {
-                [Op.and]: [
-                    {
-                        id_chat: chatId,
-                    },
-                    {
-                        id_user: {[Op.not]: user.id}
-                    }
-                ]
-            },
-            returning: true,
-        });
+        updated = await updateNumberMes(1, chatId, user.id);
     } catch (e) {
         console.error(e)
         throw new Error("Cannot update chat");

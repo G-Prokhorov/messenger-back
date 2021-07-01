@@ -6,11 +6,6 @@ function ChatModel(sequelize:  any) {
             type: DataTypes.TEXT,
             allowNull: false,
         },
-        read: {
-            type: DataTypes.BOOLEAN,
-            allowNull: false,
-            defaultValue: true,
-        },
         id_user: {
             type: DataTypes.INTEGER,
             allowNull: false,
