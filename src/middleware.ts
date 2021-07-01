@@ -18,10 +18,11 @@ export default async function middleware(req: any, res: any, next: any) {
     }
 
     try {
-        let result = await checkTokens(token, refresh);
+        let [result, username] = await checkTokens(token, refresh);
         if (result) {
             setToken(res, result);
         }
+        req.userName = username;
         next();
     } catch (e) {
         switch (e.message) {

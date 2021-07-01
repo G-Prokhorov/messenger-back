@@ -9,7 +9,7 @@ export default async function checkTokens(token: string, refresh: string) {
         if (!check) {
             throw new Error("User not exist");
         }
-        return null;
+        return [null, (<any>decode).username];
     } catch (e) {
         if (e.message === "User not exist") {
             throw e;
@@ -21,7 +21,7 @@ export default async function checkTokens(token: string, refresh: string) {
             if (!check) {
                 throw new Error("User not exist");
             }
-            return await giveToken((<any>decode).username);
+            return [await giveToken((<any>decode).username), (<any>decode).username];
         } catch (e) {
             throw new Error(e.message === "User not exist" ? "User not exist" : "Token isn't valid");
         }

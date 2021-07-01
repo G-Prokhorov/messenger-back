@@ -135,23 +135,7 @@ app.post("/createChat", middleware, (req, res) => {
     pubSub.publish("createChat", req.body, id);
 });
 
-app.post("/getMessage", (req, res) => {
-    let decode: any;
-
-    try {
-        decode = jwt.verify(req.cookies.token, process.env.TOKEN);
-    } catch (e) {
-        try {
-            decode = jwt.verify(req.cookies.refreshToken, process.env.TOKEN);
-        } catch (e) {
-            return res.sendStatus(500);
-        }
-    }
-
-    if (!decode) {
-        return res.sendStatus(403);
-    }
-
+app.post("/getMessage", middleware, (req, res) => {
     const id = pubSub.subscribe("resGetMessage", async (err: string, message: string) => {
         console.log("here")
         if (err !== 'success') {
@@ -179,7 +163,8 @@ app.post("/getMessage", (req, res) => {
     });
 
     pubSub.publish("getMessage", {
-        sender: (<any>decode).username,
+        //@ts-ignore
+        sender: req.userName,
         ...req.body
     }, id);
 });
