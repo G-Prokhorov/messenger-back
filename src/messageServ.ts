@@ -29,10 +29,7 @@ subscriber.on('message', async (channel: string, message: string) => {
                     users.forEach((value: any) => {
                         publisher.publish(value.username, JSON.stringify({
                             err: "success",
-                            message: {
-                                message: message,
-                                chatId: messageParse.message.chatId,
-                            }
+                            message: message
                         }));
                     });
                 } catch (e) {

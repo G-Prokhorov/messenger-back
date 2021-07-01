@@ -41,6 +41,7 @@ webSocketServer.on('connection', async (ws, req) => {
             return;
         }
 
+        console.log(obj)
         ws.send(obj.message + ", " + obj.chatId);
     });
 

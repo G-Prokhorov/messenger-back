@@ -7,6 +7,7 @@ import setToken from "./token/set";
 import lib_PubSub from "./my_library/lib_PubSub";
 import microServCB from "./my_library/microServCB";
 import middleware from "./middleware/middleware";
+import sanitizeMiddlewareBody from "./middleware/sanitizeMiddlewareBody";
 import sanitizeMiddleware from "./middleware/sanitizeMiddleware";
 
 require('dotenv').config();
@@ -19,6 +20,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 app.use(sanitizeMiddleware);
+app.use(/\/((?!createChat).)*/, sanitizeMiddlewareBody);
 
 const pubSub = new lib_PubSub(microServCB);
 

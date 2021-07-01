@@ -4,8 +4,10 @@ import {v4 as uuidv4} from 'uuid';
 
 export default async function createChat(users: any) {
     try {
+        console.log(users);
         users = JSON.parse(users);
-    } catch {
+    } catch (e) {
+        console.error(e)
         throw new Error("Server error");
     }
 

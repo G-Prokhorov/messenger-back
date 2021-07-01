@@ -74,7 +74,8 @@ export default async function sendMessage(body: any) {
         });
 
         return users;
-    } catch {
+    } catch (e) {
+        console.error(e)
         throw new Error("Users are not notified");
     }
 }
