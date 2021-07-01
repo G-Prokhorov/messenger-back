@@ -9,6 +9,7 @@ import microServCB from "./my_library/microServCB";
 import middleware from "./middleware/middleware";
 import sanitizeMiddlewareBody from "./middleware/sanitizeMiddlewareBody";
 import sanitizeMiddleware from "./middleware/sanitizeMiddleware";
+import errorSwitch from "./errorSwitch";
 
 require('dotenv').config();
 
@@ -51,22 +52,8 @@ app.post(["/register", "/login"], (req, res) => {
 
     let id = pubSub.subscribe(sub, (err: string, message: string) => {
         if (err !== 'success') {
-            console.log(err);
-            switch (err) {
-                case "Bad request":
-                    res.status(400);
-                    break;
-                case "User not found":
-                    res.status(404);
-                    break;
-                case "Incorrect password":
-                    res.status(403);
-                    break;
-                default:
-                    res.status(500);
-                    break
-            }
-            return res.send(err);
+            errorSwitch(res, err);
+            return;
         }
         setToken(res, message);
         return res.end();
@@ -106,21 +93,8 @@ app.get("/checkTokens", middleware, (req, res) => res.sendStatus(200));
 app.post("/createChat", middleware, (req, res) => {
     const id = pubSub.subscribe("resCreateChat", (err: string, message: string) => {
         if (err !== 'success') {
-            switch (err) {
-                case "Not enough or too much users":
-                    res.status(400);
-                    break;
-                case "User or users not found":
-                    res.status(403);
-                    break;
-                case "Chat already exist":
-                    res.status(409);
-                    break;
-                default:
-                    res.status(500);
-                    break
-            }
-            return res.send(err);
+            errorSwitch(res, err);
+            return;
         }
 
         if (message) {
@@ -135,26 +109,9 @@ app.post("/createChat", middleware, (req, res) => {
 
 app.post("/getMessage", middleware, (req, res) => {
     const id = pubSub.subscribe("resGetMessage", async (err: string, message: string) => {
-        console.log("here")
         if (err !== 'success') {
-            switch (err) {
-                case "Forbidden":
-                    res.status(403);
-                    break;
-                case "Bad request":
-                    res.status(400);
-                    break;
-                case "User not exist":
-                    res.status(404);
-                    break;
-                case "Message isn't exist":
-                    res.status(404);
-                    break;
-                default:
-                    res.status(500);
-                    break
-            }
-            return res.send(err);
+            errorSwitch(res, err);
+            return;
         }
 
         return res.status(200).send(message);
@@ -172,24 +129,8 @@ app.post("/getMessage", middleware, (req, res) => {
 app.patch("/markRead", middleware, (req, res) => {
     const id = pubSub.subscribe("resMarkRead", async (err: string, message: string) => {
         if (err !== 'success') {
-            switch (err) {
-                case "Forbidden":
-                    res.status(403);
-                    break;
-                case "Bad request":
-                    res.status(400);
-                    break;
-                case "User not exist":
-                    res.status(404);
-                    break;
-                case "Cannot update chat":
-                    res.status(409);
-                    break;
-                default:
-                    res.status(500);
-                    break
-            }
-            return res.send(err);
+            errorSwitch(res, err);
+            return;
         }
 
         return res.status(200).send(message);
@@ -207,21 +148,8 @@ app.patch("/markRead", middleware, (req, res) => {
 app.get("/getChat", middleware, (req, res) => {
     const id = pubSub.subscribe("resGetChats", async (err: string, message: string) => {
         if (err !== 'success') {
-            switch (err) {
-                case "Forbidden":
-                    res.status(403);
-                    break;
-                case "Bad request":
-                    res.status(400);
-                    break;
-                case "User not exist":
-                    res.status(404);
-                    break;
-                default:
-                    res.status(500);
-                    break
-            }
-            return res.send(err);
+            errorSwitch(res, err);
+            return;
         }
 
         return res.status(200).send(message);
