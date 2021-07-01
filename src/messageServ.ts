@@ -4,6 +4,7 @@ import createChat from "./message/createChat";
 import sendMessage from "./message/sendMessage";
 import sanitizer from "sanitizer";
 import getMessage from "./message/getMessage";
+import markRead from "./message/markRead";
 
 const publisher = redis.createClient();
 const subscriber = redis.createClient();
@@ -53,7 +54,7 @@ subscriber.on('message', async (channel: string, message: string) => {
                 break;
             case "markRead":
                 try {
-                    await getMessage(messageParse.message);
+                    await markRead(messageParse.message);
                     post("resMarkRead", "Okay");
                 } catch (e) {
                     post("resMarkRead", null, e.message)

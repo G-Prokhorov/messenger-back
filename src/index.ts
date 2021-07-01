@@ -169,6 +169,39 @@ app.post("/getMessage", middleware, (req, res) => {
     }, id);
 });
 
+app.patch("/markRead", middleware, (req, res) => {
+    const id = pubSub.subscribe("resMarkRead", async (err: string, message: string) => {
+        if (err !== 'success') {
+            switch (err) {
+                case "Forbidden":
+                    res.status(403);
+                    break;
+                case "Bad request":
+                    res.status(400);
+                    break;
+                case "User not exist":
+                    res.status(404);
+                    break;
+                case "Cannot update chat":
+                    res.status(409);
+                    break;
+                default:
+                    res.status(500);
+                    break
+            }
+            return res.send(err);
+        }
+
+        return res.status(200).send(message);
+    });
+
+    pubSub.publish("markRead", {
+        //@ts-ignore
+        username: req.userName,
+        ...req.body
+    }, id);
+});
+
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`);
 });

@@ -4,16 +4,17 @@ import checkChat from "../db/checkChat";
 import updateNumberMes from "../db/updateNumberMes";
 
 export default async function markRead(body: any) {
-    if (!body.value || !body.chatId || !body.sender) {
+    console.log(body)
+    if (!body.value || !body.chatId || !body.username) {
         throw new Error("Bad request");
     }
 
-    let value: string, chatId: string, sender: string;
+    let value: string, chatId: string, username: string;
 
     try {
         value = sanitizer.escape(body.value);
         chatId = sanitizer.escape(body.chatId);
-        sender = sanitizer.escape(body.sender);
+        username = sanitizer.escape(body.username);
     } catch {
         throw new Error("Server error");
     }
@@ -21,7 +22,7 @@ export default async function markRead(body: any) {
     let user;
 
     try {
-        user = await findUser(sender);
+        user = await findUser(username);
     } catch {
         throw new Error("Server error");
     }
