@@ -1,5 +1,5 @@
 import redis from "redis";
-import postFunc from "./auth/post";
+import postFunc from "./post";
 import createChat from "./message/createChat";
 import sendMessage from "./message/sendMessage";
 import sanitizer from "sanitizer";
@@ -61,7 +61,7 @@ subscriber.on('message', async (channel: string, message: string) => {
             case "getChats":
                 console.log(messageParse)
                 try {
-                    let chats = await getChats(messageParse.message.username);
+                    let chats = await getChats(messageParse.message.username, messageParse.message.userId);
                     post("resGetChats", chats);
                 } catch (e) {
                     console.error(e.message);

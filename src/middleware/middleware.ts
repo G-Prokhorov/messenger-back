@@ -6,8 +6,8 @@ export default async function middleware(req: any, res: any, next: any) {
     let token;
     let refresh;
     try {
-        token = sanitizer.escape(req.cookies.token);
-        refresh = sanitizer.escape(req.cookies.refreshToken);
+        token = req.cookies.token;
+        refresh = req.cookies.refreshToken;
     } catch (e) {
         res.sendStatus(500);
         return;
@@ -18,11 +18,12 @@ export default async function middleware(req: any, res: any, next: any) {
     }
 
     try {
-        let [result, username] = await checkTokens(token, refresh);
+        let [result, username, userId] = await checkTokens(token, refresh);
         if (result) {
             setToken(res, result);
         }
         req.userName = username;
+        req.userId = userId;
         next();
     } catch (e) {
         switch (e.message) {

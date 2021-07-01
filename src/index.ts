@@ -162,6 +162,8 @@ app.post("/getMessage", middleware, (req, res) => {
 
     pubSub.publish("getMessage", {
         //@ts-ignore
+        userId: req.userId,
+        //@ts-ignore
         sender: req.userName,
         ...req.body
     }, id);
@@ -195,6 +197,8 @@ app.patch("/markRead", middleware, (req, res) => {
 
     pubSub.publish("markRead", {
         //@ts-ignore
+        userId: req.userId,
+        //@ts-ignore
         username: req.userName,
         ...req.body
     }, id);
@@ -224,6 +228,8 @@ app.get("/getChat", middleware, (req, res) => {
     });
 
     pubSub.publish("getChats", {
+        //@ts-ignore
+        userId: req.userId,
         //@ts-ignore
         username: req.userName,
     }, id)

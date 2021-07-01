@@ -1,7 +1,7 @@
 import redis from "redis";
 import register from "./auth/register";
 import login from "./auth/login";
-import postFunc from "./auth/post";
+import postFunc from "./post";
 
 let publisher = redis.createClient();
 const subscriber = redis.createClient();

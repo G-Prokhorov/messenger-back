@@ -3,26 +3,14 @@ import checkChat from "../db/checkChat";
 import findUser from "../db/findUser";
 
 export default async function getMessage(body: any) {
-    if (!body.start || !body.chatId || !body.sender) {
+    if (!body.start || !body.chatId || !body.sender || !body.userId) {
         throw new Error("Bad request");
     }
 
-    let start: string = body.start, chatId: string = body.chatId, sender: string = body.sender;
-
-    let user;
+    let start: string = body.start, chatId: string = body.chatId, sender: string = body.sender, userId: string = body.userId;
 
     try {
-        user = await findUser(sender);
-    } catch {
-        throw new Error("Server error");
-    }
-
-    if (!user.id) {
-        throw new Error("User not exist");
-    }
-
-    try {
-        await checkChat(chatId, user.id);
+        await checkChat(chatId, userId);
     } catch {
         throw new Error("Forbidden");
     }

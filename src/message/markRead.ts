@@ -4,32 +4,21 @@ import updateNumberMes from "../db/updateNumberMes";
 
 export default async function markRead(body: any) {
     console.log(body)
-    if (!body.value || !body.chatId || !body.username) {
+    if (!body.value || !body.chatId || !body.username || !body.userId) {
         throw new Error("Bad request");
     }
 
-    let value: string = body.value, chatId: string = body.chatId, username: string = body.username;
+    let value: string = body.value, chatId: string = body.chatId, username: string = body.username,  userId: string = body.userId;
 
-    let user;
-
-    try {
-        user = await findUser(username);
-    } catch {
-        throw new Error("Server error");
-    }
-
-    if (!user.id) {
-        throw new Error("User not exist");
-    }
 
     try {
-        await checkChat(chatId, user.id);
+        await checkChat(chatId, userId);
     } catch {
         throw new Error("Forbidden");
     }
 
     try {
-        await updateNumberMes(Number.parseInt(value), chatId, user.id);
+        await updateNumberMes(Number.parseInt(value), chatId, userId);
     } catch (e) {
         console.error(e)
         throw new Error("Cannot update chat");
