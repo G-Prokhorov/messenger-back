@@ -51,10 +51,17 @@ subscriber.on('message', async (channel: string, message: string) => {
                     post("resGetMessage", null, e.message)
                 }
                 break;
+            case "markRead":
+                try {
+                    await getMessage(messageParse.message);
+                    post("resMarkRead", "Okay");
+                } catch (e) {
+                    post("resMarkRead", null, e.message)
+                }
         }
     } catch (e) {
         console.error("Error in message microservice. ", +e)
     }
 });
 
-subscriber.subscribe('createChat', 'sendMessage', 'getMessage');
+subscriber.subscribe('createChat', 'sendMessage', 'getMessage', 'markRead');
