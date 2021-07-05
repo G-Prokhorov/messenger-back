@@ -88,7 +88,12 @@ app.get("/checkUser", async (req, res) => {
 app.get("/logout", (req, res) => res.clearCookie("token")
     .clearCookie("refreshToken").status(200).send("clear"));
 
-app.get("/checkTokens", middleware, (req, res) => res.sendStatus(200));
+app.get("/checkTokens", middleware, (req, res) => res.send({
+    //@ts-ignore
+    username: req.userName,
+    //@ts-ignore
+    name: req.u_name,
+}));
 
 app.post("/createChat", middleware, (req, res) => {
     const id = pubSub.subscribe("resCreateChat", (err: string, message: string) => {
