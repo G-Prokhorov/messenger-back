@@ -40,9 +40,8 @@ webSocketServer.on('connection', async (ws, req) => {
             ws.send("Error. " + err);
             return;
         }
-
-        console.log(obj)
-        ws.send(obj.message + ", " + obj.chatId);
+        console.log(obj);
+        ws.send(JSON.stringify(obj));
     });
 
     ws.on('message', (m:string) => {
