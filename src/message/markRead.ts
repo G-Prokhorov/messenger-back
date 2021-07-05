@@ -18,7 +18,7 @@ export default async function markRead(body: any) {
     }
 
     try {
-        await updateNumberMes(Number.parseInt(value), chatId, userId);
+        await updateNumberMes(Number.parseInt(value), chatId, userId, true);
     } catch (e) {
         console.error(e)
         throw new Error("Cannot update chat");
