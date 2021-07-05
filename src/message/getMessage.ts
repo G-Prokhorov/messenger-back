@@ -1,4 +1,4 @@
-import {messageModel} from "../db/db";
+import {messageModel, userModel} from "../db/db";
 import checkChat from "../db/checkChat";
 import findUser from "../db/findUser";
 
@@ -11,7 +11,8 @@ export default async function getMessage(body: any) {
 
     try {
         await checkChat(chatId, userId);
-    } catch {
+    } catch (e) {
+        console.error(e)
         throw new Error("Forbidden");
     }
 
@@ -25,7 +26,11 @@ export default async function getMessage(body: any) {
             order: [['id', 'DESC']],
             where: {
                 id_chat: chatId
-            }
+            },
+            include: {
+                model: userModel,
+                attributes: ['username']
+            },
         });
     } catch (e) {
         console.error(e)

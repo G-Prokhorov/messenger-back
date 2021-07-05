@@ -9,7 +9,8 @@ const sequelize = new Sequelize(`postgresql://${process.env.DB_USER}:${process.e
 
 const userModel = User(sequelize);
 const chatModel = Chat(sequelize);
-const messageModel = Messages(sequelize)
+const messageModel = Messages(sequelize);
+messageModel.belongsTo(userModel, {foreignKey: "id_sender"});
 
 export {
     userModel,
