@@ -26,10 +26,12 @@ webSocketServer.on('connection', async (ws, req) => {
     });
 
     let username:string;
+    let nameU: string
 
     try {
-        let [result, decode] = await checkTokens(token, refreshToken);
+        let [result, decode, id, name] = await checkTokens(token, refreshToken);
         username = decode;
+        nameU = name;
     } catch (e) {
         ws.close(1003, e.message);
         return;
@@ -40,7 +42,6 @@ webSocketServer.on('connection', async (ws, req) => {
             ws.send("Error. " + err);
             return;
         }
-        console.log(obj);
         ws.send(JSON.stringify(obj));
     });
 
@@ -57,6 +58,7 @@ webSocketServer.on('connection', async (ws, req) => {
         }
         pubSub.publish("sendMessage", {
             sender: username,
+            name: nameU,
             ...parse
         });
     });
