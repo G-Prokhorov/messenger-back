@@ -1,5 +1,5 @@
 import findUser from "../db/findUser";
-import {sequelize} from "../db/db";
+import {chatModel, messageModel, sequelize, userModel} from "../db/db";
 import {QueryTypes} from "sequelize";
 
 export default async function getChats(username: string, userId: string) {
@@ -10,7 +10,9 @@ export default async function getChats(username: string, userId: string) {
     let chat: any;
 
     try {
-        chat = await sequelize.query(`SELECT id_chat, name, "numberOfUnread" FROM chats INNER JOIN users u on u.id = chats.id_user WHERE id_chat in (SELECT id_chat FROM chats WHERE id_user = ` + userId + `) AND id_user !=` + userId, {type: QueryTypes.SELECT})
+        chat = await sequelize.query(`SELECT chats.id_chat, u.username, u.name, m.name  AS sender_name, m.username AS sender_username, m.message,  num."numberOfUnread" FROM chats INNER JOIN users u on u.id = chats.id_user INNER JOIN
+    (SELECT id_chat, message, username, name FROM messages INNER JOIN users u on u.id = messages.id_sender WHERE messages.id in (SELECT MAX(id) FROM messages GROUP BY id_chat)) m
+        on chats.id_chat = m.id_chat INNER JOIN (SELECT id_chat, "numberOfUnread" FROM chats WHERE id_user =${userId}) num on num.id_chat = chats.id_chat WHERE id_user !=${userId}`, {type: QueryTypes.SELECT})
         return chat;
     } catch (e) {
         console.error(e);

@@ -11,6 +11,7 @@ const userModel = User(sequelize);
 const chatModel = Chat(sequelize);
 const messageModel = Messages(sequelize);
 messageModel.belongsTo(userModel, {foreignKey: "id_sender"});
+messageModel.belongsTo(chatModel, {foreignKey: "id_chat"});
 
 export {
     userModel,
