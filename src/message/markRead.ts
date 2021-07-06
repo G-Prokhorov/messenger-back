@@ -1,6 +1,7 @@
 import findUser from "../db/findUser";
 import checkChat from "../db/checkChat";
 import updateNumberMes from "../db/updateNumberMes";
+import sequelize from "sequelize";
 
 export default async function markRead(body: any) {
     console.log(body)
@@ -18,7 +19,7 @@ export default async function markRead(body: any) {
     }
 
     try {
-        await updateNumberMes(Number.parseInt(value), chatId, userId, true);
+        await updateNumberMes(chatId, userId, sequelize.literal(`"numberOfUnread" + ${value}`), true);
     } catch (e) {
         console.error(e)
         throw new Error("Cannot update chat");

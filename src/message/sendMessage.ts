@@ -1,7 +1,7 @@
 import findUser from "../db/findUser";
 import sanitizer from "sanitizer";
-import { messageModel, userModel} from "../db/db";
-import {Op} from "sequelize";
+import {messageModel, userModel} from "../db/db";
+import sequelize, {Op} from "sequelize";
 import checkChat from "../db/checkChat";
 import updateNumberMes from "../db/updateNumberMes";
 
@@ -33,9 +33,15 @@ export default async function sendMessage(body: any) {
         throw new Error("User not exist");
     }
 
+    let chat;
+
     try {
-        await checkChat(chatId, user.id);
+        chat = await updateNumberMes(chatId, user.id, 0, true);
     } catch {
+        throw new Error("Forbidden");
+    }
+
+    if (chat[1].length === 0) {
         throw new Error("Forbidden");
     }
 
@@ -52,7 +58,7 @@ export default async function sendMessage(body: any) {
     let updated: any;
 
     try {
-        updated = await updateNumberMes(1, chatId, user.id);
+        updated = await updateNumberMes(chatId, user.id, sequelize.literal(`"numberOfUnread" + 1`));
     } catch (e) {
         console.error(e)
         throw new Error("Cannot update chat");

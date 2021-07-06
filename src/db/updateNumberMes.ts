@@ -1,9 +1,9 @@
 import {chatModel} from "./db";
-import sequelize, {Op} from "sequelize";
+import {Op} from "sequelize";
 
-export default async function updateNumberMes(value: number, chatId: string, userId: string, self: boolean = false) {
+export default async function updateNumberMes(chatId: string, userId: string, num: any, self: boolean = false) {
     return await chatModel.update({
-        numberOfUnread: sequelize.literal(`"numberOfUnread" + ${value}`),
+        numberOfUnread: num,
     }, {
         where: {
             [Op.and]: [
