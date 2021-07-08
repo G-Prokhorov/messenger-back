@@ -93,6 +93,7 @@ export default async function createChat(users: any, creator: string) {
         sender_name: "",
         sender_username: "",
         message: "",
-        numberOfUnread: 0
+        numberOfUnread: 0,
+        lastUpdate: new Date().getUTCDate(),
     };
 }
