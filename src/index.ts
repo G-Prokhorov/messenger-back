@@ -95,7 +95,7 @@ app.get("/checkTokens", middleware, (req, res) => res.send({
     name: req.u_name,
 }));
 
-app.post("/createChat", middleware, (req, res) => {
+app.put("/createChat", middleware, (req, res) => {
     const id = pubSub.subscribe("resCreateChat", (err: string, message: string) => {
         if (err !== 'success') {
             errorSwitch(res, err);
@@ -109,7 +109,11 @@ app.post("/createChat", middleware, (req, res) => {
         return res.sendStatus(200);
     });
 
-    pubSub.publish("createChat", req.body, id);
+    pubSub.publish("createChat", {
+        ...req.body,
+        //@ts-ignore
+        creator: req.userName
+    }, id);
 });
 
 app.post("/getMessage", middleware, (req, res) => {

@@ -8,7 +8,7 @@ import getChats from "./getChats";
 export default class MessageClass {
     public async createChat(messageParse: any, post: any) {
         try {
-            let res = await createChat(messageParse.message.users);
+            let res = await createChat(messageParse.message.users, messageParse.message.creator);
             post("resCreateChat", res);
         } catch (e) {
             post("resCreateChat", null, e.message)

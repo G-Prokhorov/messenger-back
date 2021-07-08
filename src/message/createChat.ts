@@ -2,14 +2,17 @@ import {userModel, chatModel} from "../db/db";
 import sequelize, {Op} from "sequelize";
 import {v4 as uuidv4} from 'uuid';
 
-export default async function createChat(users: any) {
+export default async function createChat(users: any, creator: string) {
     try {
+        users.push(creator);
         console.log(users);
-        users = JSON.parse(users);
+        // users = JSON.parse(users);
     } catch (e) {
         console.error(e)
         throw new Error("Server error");
     }
+
+
 
     if (users.length !== 2) {
         throw new Error("Not enough or too much users")
@@ -30,7 +33,7 @@ export default async function createChat(users: any) {
             where: {
                 [Op.or]: users,
             },
-            attributes: ['id', 'username'],
+            attributes: ['id', 'username', 'name'],
         })
     } catch (e) {
         throw new Error("Server error");
@@ -81,5 +84,15 @@ export default async function createChat(users: any) {
     //     return "Chat was create, but without some users";
     // }
 
-    return;
+    let user = result.find((user:any) => user.username !== creator)
+
+    return {
+        id_chat: id,
+        username: user.username,
+        name: user.name,
+        sender_name: "",
+        sender_username: "",
+        message: "",
+        numberOfUnread: 0
+    };
 }
