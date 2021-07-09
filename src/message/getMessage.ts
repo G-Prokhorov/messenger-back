@@ -20,7 +20,7 @@ export default async function getMessage(body: any) {
 
     try {
         messages = await messageModel.findAll({
-            attributes: ['message'],
+            attributes: ['message', 'img'],
             offset: start,
             limit: body.limit || 25,
             order: [['id', 'DESC']],

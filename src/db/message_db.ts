@@ -14,5 +14,9 @@ export default function MessagesModel(sequelize: any) {
             type: DataTypes.TEXT,
             allowNull: false,
         },
+        img: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+        },
     })
 }
