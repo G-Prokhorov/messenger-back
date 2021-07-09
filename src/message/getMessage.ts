@@ -22,7 +22,7 @@ export default async function getMessage(body: any) {
         messages = await messageModel.findAll({
             attributes: ['message'],
             offset: start,
-            limit: start + 25,
+            limit: 25,
             order: [['id', 'DESC']],
             where: {
                 id_chat: chatId
