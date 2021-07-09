@@ -49,18 +49,27 @@ webSocketServer.on('connection', async (ws, req) => {
         let parse: any;
         try {
             parse = JSON.parse(m)
-            if (!parse.chatId || !parse.message) {
-                throw new Error("Bad request");
-            }
         } catch {
-            ws.send("Bad request");
+            ws.send("Server error");
             return;
         }
-        pubSub.publish("sendMessage", {
-            sender: username,
-            name: nameU,
-            ...parse
-        });
+        console.log(parse);
+        switch (parse.action) {
+            case "send message":
+                if (!parse.data.chatId || !parse.data.message) {
+                    ws.send("Bad request");
+                }
+
+                pubSub.publish("sendMessage", {
+                    sender: username,
+                    name: nameU,
+                    ...parse.data
+                });
+                break;
+            default:
+                ws.send("Unknown method");
+                break;
+        }
     });
 
     ws.on("close", () => {
