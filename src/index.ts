@@ -10,11 +10,12 @@ import middleware from "./middleware/middleware";
 import sanitizeMiddlewareBody from "./middleware/sanitizeMiddlewareBody";
 import sanitizeMiddleware from "./middleware/sanitizeMiddleware";
 import errorSwitch from "./errorSwitch";
+import multer from "multer";
 
 require('dotenv').config();
 
 const app = express();
-
+const fileSize = 500000000000000000000000000000000000000000;
 const port = 5050;
 
 app.use(bodyParser.json());
@@ -169,7 +170,31 @@ app.get("/getChat", middleware, (req, res) => {
         userId: req.userId,
         //@ts-ignore
         username: req.userName,
-    }, id)
+    }, id);
+});
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage, limits: { fileSize: fileSize } });
+
+app.post("/sendPhoto", middleware, upload.any(), (req, res) => {
+    console.log(req.body);
+    const id = pubSub.subscribe("resSendPhoto", async (err: string, message: string) => {
+        if (err !== 'success') {
+            errorSwitch(res, err);
+            return;
+        }
+
+        return res.sendStatus(200);
+    });
+
+    pubSub.publish("sendPhoto", {
+        //@ts-ignore
+        userId: req.userId,
+        //@ts-ignore
+        username: req.userName,
+        chatId: req.body.chatId,
+        files: {...req.files},
+    }, id);
 });
 
 app.listen(port, () => {

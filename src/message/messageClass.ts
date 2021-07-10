@@ -1,9 +1,10 @@
 import createChat from "./createChat";
-import sendMessage from "./sendMessage";
+import {sendMessageWithSanitizer} from "./sendMessage";
 import sanitizer from "sanitizer";
 import markRead from "./markRead";
 import getMessage from "./getMessage";
 import getChats from "./getChats";
+import sendPhoto from "./sendFile";
 
 export default class MessageClass {
     public async createChat(messageParse: any, post: any) {
@@ -17,7 +18,7 @@ export default class MessageClass {
 
     public async sendMessage(messageParse: any, post: any, publisher: any) {
         try {
-            let users = await sendMessage(messageParse.message);
+            let users = await sendMessageWithSanitizer(messageParse.message);
             users.forEach((value: any) => {
                 publisher.publish(value.username, JSON.stringify({
                     err: "success",
@@ -62,6 +63,17 @@ export default class MessageClass {
         } catch (e) {
             console.error(e.message);
             post("resGetChats", null, e.message);
+        }
+    }
+
+    public async sendPhoto(messageParse: any, post: any) {
+        console.log(messageParse)
+        try {
+            await sendPhoto(messageParse.message);
+            post("resSendPhoto");
+        } catch (e) {
+            console.error(e.message);
+            post("resSendPhoto", null, e.message);
         }
     }
 }

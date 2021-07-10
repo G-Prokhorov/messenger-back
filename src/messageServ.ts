@@ -27,10 +27,13 @@ subscriber.on('message', async (channel: string, message: string) => {
             case "getChats":
                 await M.getChats(messageParse, post);
                 break;
+            case "sendPhoto":
+                await M.sendPhoto(messageParse, post);
+                break;
         }
     } catch (e) {
         console.error("Error in message microservice. ", +e)
     }
 });
 
-subscriber.subscribe('createChat', 'sendMessage', 'getMessage', 'markRead', 'getChats');
+subscriber.subscribe('createChat', 'sendMessage', 'getMessage', 'markRead', 'getChats', 'sendPhoto');

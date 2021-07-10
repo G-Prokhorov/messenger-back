@@ -2,11 +2,10 @@ import findUser from "../db/findUser";
 import sanitizer from "sanitizer";
 import {messageModel, userModel} from "../db/db";
 import sequelize, {Op} from "sequelize";
-import checkChat from "../db/checkChat";
 import updateNumberMes from "../db/updateNumberMes";
 
 
-export default async function sendMessage(body: any) {
+export async function sendMessageWithSanitizer(body: any) {
     if (!body.message || !body.sender || !body.chatId) {
         throw new Error("Bad request");
     }
@@ -33,10 +32,13 @@ export default async function sendMessage(body: any) {
         throw new Error("User not exist");
     }
 
-    let chat;
+    return sendMessage(user.id, chatId, message);
+}
 
+export async function sendMessage(userId: string, chatId: string, message: string, img:boolean = false) {
+    let chat;
     try {
-        chat = await updateNumberMes(chatId, user.id, 0, true);
+        chat = await updateNumberMes(chatId, userId, 0, true);
     } catch {
         throw new Error("Forbidden");
     }
@@ -48,8 +50,9 @@ export default async function sendMessage(body: any) {
     try {
         await messageModel.create({
             message: message,
-            id_sender: user.id,
+            id_sender: userId,
             id_chat: chatId,
+            img: img,
         });
     } catch {
         throw new Error("Cannot create message");
@@ -58,7 +61,7 @@ export default async function sendMessage(body: any) {
     let updated: any;
 
     try {
-        updated = await updateNumberMes(chatId, user.id, sequelize.literal(`"numberOfUnread" + 1`));
+        updated = await updateNumberMes(chatId, userId, sequelize.literal(`"numberOfUnread" + 1`));
     } catch (e) {
         console.error(e)
         throw new Error("Cannot update chat");
