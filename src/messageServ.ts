@@ -28,7 +28,7 @@ subscriber.on('message', async (channel: string, message: string) => {
                 await M.getChats(messageParse, post);
                 break;
             case "sendPhoto":
-                await M.sendPhoto(messageParse, post);
+                await M.sendPhoto(messageParse, post, publisher);
                 break;
         }
     } catch (e) {

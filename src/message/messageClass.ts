@@ -66,10 +66,20 @@ export default class MessageClass {
         }
     }
 
-    public async sendPhoto(messageParse: any, post: any) {
+    public async sendPhoto(messageParse: any, post: any, publisher: any) {
         console.log(messageParse)
         try {
-            await sendPhoto(messageParse.message);
+            let result = await sendPhoto(messageParse.message);
+            result.forEach((elmt: any) => {
+                elmt.users.forEach((value:any) => {
+                    publisher.publish(value.username, JSON.stringify({
+                        err: "success",
+                        message: {
+                            message: elmt.message,
+                        }
+                    }));
+                })
+            });
             post("resSendPhoto");
         } catch (e) {
             console.error(e.message);

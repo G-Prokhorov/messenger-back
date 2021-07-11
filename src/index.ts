@@ -192,6 +192,8 @@ app.post("/sendPhoto", middleware, upload.any(), (req, res) => {
         userId: req.userId,
         //@ts-ignore
         username: req.userName,
+        //@ts-ignore
+        name: req.u_name,
         chatId: req.body.chatId,
         files: {...req.files},
     }, id);
