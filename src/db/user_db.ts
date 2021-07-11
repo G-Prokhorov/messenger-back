@@ -16,6 +16,10 @@ function UserModel(sequelize:  any) {
             allowNull: false,
             defaultValue: 'Anonymous',
         },
+        email: {
+            type: DataTypes.TEXT,
+            allowNull: false,
+        }
     });
 }
 
