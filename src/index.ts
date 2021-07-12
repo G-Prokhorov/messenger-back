@@ -176,7 +176,6 @@ const storage = multer.memoryStorage();
 const upload = multer({storage: storage, limits: {fileSize: fileSize}});
 
 app.post("/sendPhoto", middleware, upload.any(), (req, res) => {
-    console.log(req.body);
     const id = pubSub.subscribe("resSendPhoto", async (err: string, message: string) => {
         if (err !== 'success') {
             errorSwitch(res, err);
@@ -210,6 +209,23 @@ app.post("/validateEmail", async (req, res) => {
 
     pubSub.publish("validateEmail", req.body, id);
 });
+
+app.patch("/updateName", middleware, (req, res) => {
+    const id = pubSub.subscribe("resUpdateName", async (err: string, message: string) => {
+        if (err !== 'success') {
+            errorSwitch(res, err);
+            return;
+        }
+
+        return res.sendStatus(200);
+    });
+
+    pubSub.publish("updateName", {
+        //@ts-ignore
+        userId: req.userId,
+        name: req.body.name,
+    }, id);
+})
 
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`);
