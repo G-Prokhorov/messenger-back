@@ -30,7 +30,7 @@ export default async function register(body: any) {
     email = body.email;
     key = body.key;
 
-    let result;
+    let result: any;
 
     try {
         result = await new Promise((resolve, reject) => client.get(email, (err, data) => {
@@ -44,11 +44,12 @@ export default async function register(body: any) {
 
             resolve(data);
         }));
+        result = JSON.parse(result);
     } catch (e) {
         throw new Error(e);
     }
 
-    if (result !== key) {
+    if (result.code !== key || result.type !== "register") {
         throw new Error("Keys don't match");
     }
 
@@ -71,7 +72,9 @@ export default async function register(body: any) {
                 ]
             },
             defaults: {
+                username: username,
                 password: hash,
+                email: email,
             },
         });
 
@@ -82,8 +85,11 @@ export default async function register(body: any) {
         if (err === "User exist") {
             throw new Error("User exist");
         }
+        console.error("Error while register new user. " + err);
         throw new Error("Server error");
     }
+
+    client.del(email);
 
     try {
         return await giveToken(username);

@@ -2,6 +2,7 @@ import redis from "redis";
 import register from "./auth/register";
 import login from "./auth/login";
 import postFunc from "./post";
+import validateEmail from "./auth/validateEmail";
 
 let publisher = redis.createClient();
 const subscriber = redis.createClient();
@@ -28,10 +29,18 @@ subscriber.on('message', async (channel: string, message: string) => {
                     post("resRegister", null, e.message);
                 }
                 break;
+            case "validateEmail":
+                try {
+                    await validateEmail(messageParse.message);
+                    post("resValidateEmail");
+                } catch (e) {
+                    post("resValidateEmail", null, e.message);
+                }
+                break;
         }
     } catch (e) {
         console.error("Error while test microservice. ", + e)
     }
 });
 
-subscriber.subscribe('register', 'login');
+subscriber.subscribe('register', 'login', 'validateEmail');

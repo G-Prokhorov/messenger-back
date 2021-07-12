@@ -11,9 +11,6 @@ import sanitizeMiddlewareBody from "./middleware/sanitizeMiddlewareBody";
 import sanitizeMiddleware from "./middleware/sanitizeMiddleware";
 import errorSwitch from "./errorSwitch";
 import multer from "multer";
-import nodemailer from 'nodemailer';
-import crypto from 'crypto';
-import redis from "redis";
 
 require('dotenv').config();
 
@@ -28,7 +25,6 @@ app.use(sanitizeMiddleware);
 app.use(/\/((?!createChat).)*/, sanitizeMiddlewareBody);
 
 const pubSub = new lib_PubSub(microServCB);
-const client = redis.createClient();
 
 const corsOptions = {
     origin: "http://localhost:8080",
@@ -202,55 +198,19 @@ app.post("/sendPhoto", middleware, upload.any(), (req, res) => {
     }, id);
 });
 
-let transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.EMAIL,
-        pass: process.env.PASSWORD_EMAIL,
-    }
-});
-
 app.post("/validateEmail", async (req, res) => {
-    if (!req.body.email) {
-        res.sendStatus(403);
-    }
+    const id = pubSub.subscribe("resValidateEmail", (err: string, message: string) => {
+        if (err !== 'success') {
+            errorSwitch(res, err);
+            return;
+        }
 
-    let mailOptions;
-    let code: string;
-    try {
-        code = await generateCode();
-        await new Promise((resolve, reject) => client.set(req.body.email, code, "EX", 60 * 10, (err) => {
-            if (err) {
-                return reject(err);
-            }
+        return res.sendStatus(200);
+    });
 
-            return resolve("ok");
-        }));
-        mailOptions = {
-            from: 'prkhrv.messenger@gmail.com',
-            to: req.body.email,
-            subject: 'Confirm mail to complete registration.',
-            html: '<h1>Hello!</h1>' +
-                '<b>Your code: </b>' + code
-        };
-    } catch (e) {
-        console.error("Error while generate token for validation email. " + e)
-    }
-
-    try {
-        await transporter.sendMail(mailOptions)
-    } catch (e) {
-        console.error("Error while send mail. " + e)
-    }
-
-    res.sendStatus(200);
+    pubSub.publish("validateEmail", req.body, id);
 });
 
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`);
 });
-
-async function generateCode(): Promise<any> {
-    let token = await crypto.randomBytes(12);
-    return token.toString('hex');
-}
