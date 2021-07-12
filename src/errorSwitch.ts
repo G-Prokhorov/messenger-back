@@ -21,7 +21,7 @@ export default function errorSwitch(res: any, err: string) {
         case "Chat already exist":
             res.status(409);
             break;
-        case "Already exist":
+        case "Code already exist":
             res.status(409);
             break;
         case "Incorrect password":

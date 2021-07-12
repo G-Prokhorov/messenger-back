@@ -39,7 +39,7 @@ export default async function validateEmail(body: any) {
                 return resolve("Generate new");
             }
 
-            return reject("Already exist");
+            return reject("Code already exist");
         }));
     } catch (e) {
         throw new Error(e);
