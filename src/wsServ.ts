@@ -43,7 +43,7 @@ webSocketServer.on('connection', async (ws, req) => {
             return;
         }
         ws.send(JSON.stringify(obj));
-    });
+    }, false);
 
     ws.on('message', (m:string) => {
         let parse: any;

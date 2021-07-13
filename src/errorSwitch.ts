@@ -42,6 +42,9 @@ export default function errorSwitch(res: any, err: string) {
         case "Old and new password cannot match":
             res.status(400);
             break;
+        case "Service Unavailable":
+            res.status(503);
+            break;
         default:
             res.status(500);
             break

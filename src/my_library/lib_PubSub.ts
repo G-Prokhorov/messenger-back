@@ -5,25 +5,35 @@ export default class lib_PubSub {
     protected subscriber: any;
     protected map = new Map();
     protected count: number = 0;
+    private timers = new Map();
 
-    constructor(cb:any) {
+    constructor(cb: any) {
         this.publisher = redis.createClient();
         this.subscriber = redis.createClient();
         this.subscriber.on("message", async (channel: string, message: string) => {
             if (this.map.has(channel)) {
                 let messageParse = JSON.parse(message);
+                if (this.timers.has(messageParse.id)) {
+                    clearTimeout(this.timers.get(messageParse.id));
+                    this.timers.delete(messageParse.id)
+                }
                 await cb.call(this, channel, messageParse);
             }
         });
     }
 
-    public subscribe(channel: string, cb: any): number {
+    public subscribe(channel: string, cb: any, withTimer: boolean = true): number {
         let id = this.getId();
         this.subscriber.subscribe(channel);
         if (!this.map.has(channel)) {
             this.map.set(channel, new Map());
         }
         this.map.get(channel).set(id, cb);
+
+        if (withTimer) {
+            this.withTimer(id, channel, cb);
+        }
+
         return id;
     }
 
@@ -37,6 +47,16 @@ export default class lib_PubSub {
     private getId(): number {
         return this.count++;
     }
+
+    private withTimer(id: number, channel: string, cb: any): void {
+        let timer = setTimeout(() => {
+            this.unsubscribe(channel, id);
+            cb("Service Unavailable", null);
+            this.timers.delete(id);
+        }, 10000);
+        this.timers.set(id, timer);
+    }
+
 
     public unsubscribe(channel: string, id: number): boolean {
         this.map.get(channel).delete(id);
