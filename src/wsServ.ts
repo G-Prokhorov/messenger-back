@@ -2,7 +2,6 @@ import http from "http";
 import WebSocket from "ws";
 import sanitizer from "sanitizer";
 import checkTokens from "./token/checkTokens";
-import jwt from "jsonwebtoken";
 import lib_PubSub from "./my_library/lib_PubSub";
 import userAlertCB from "./my_library/userAlertCB";
 
