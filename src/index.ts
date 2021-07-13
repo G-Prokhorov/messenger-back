@@ -197,8 +197,12 @@ app.post("/sendPhoto", middleware, upload.any(), (req, res) => {
     }, id);
 });
 
-app.post("/validateEmail", async (req, res) => {
-    const id = pubSub.subscribe("resValidateEmail", (err: string, message: string) => {
+app.post("/sendCodeEmail/:type", async (req, res) => {
+    if (req.params.type !== "register" && req.params.type !== "restore") {
+        res.sendStatus(403);
+    }
+
+    const id = pubSub.subscribe("resSendCodeEmail", (err: string, message: string) => {
         if (err !== 'success') {
             errorSwitch(res, err);
             return;
@@ -207,7 +211,7 @@ app.post("/validateEmail", async (req, res) => {
         return res.sendStatus(200);
     });
 
-    pubSub.publish("validateEmail", req.body, id);
+    pubSub.publish("sendCodeEmail", {...req.body, type: req.params.type}, id);
 });
 
 app.patch("/updateName", middleware, (req, res) => {
@@ -238,11 +242,24 @@ app.patch("/changePassword", middleware, (req, res) => {
     });
 
     pubSub.publish("changePassword", {
-            //@ts-ignore
-            username: req.userName,
-            ...req.body,
-        }, id);
+        //@ts-ignore
+        username: req.userName,
+        ...req.body,
+    }, id);
 })
+
+app.patch("/restorePassword", (req, res) => {
+    const id = pubSub.subscribe("resRestorePassword", (err: string, message: string) => {
+        if (err !== 'success') {
+            errorSwitch(res, err);
+            return;
+        }
+
+        return res.sendStatus(200);
+    });
+
+    pubSub.publish("restorePassword", req.body, id);
+});
 
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`);

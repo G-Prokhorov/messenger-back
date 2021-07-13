@@ -2,9 +2,10 @@ import redis from "redis";
 import register from "./auth/register";
 import login from "./auth/login";
 import postFunc from "./post";
-import validateEmail from "./auth/validateEmail";
+import sendCodeEmail from "./auth/sendCodeEmail";
 import updateName from "./auth/updateName";
 import changePassword from "./auth/changePassword";
+import restorePassword from "./auth/restorePassword";
 
 let publisher = redis.createClient();
 const subscriber = redis.createClient();
@@ -31,12 +32,12 @@ subscriber.on('message', async (channel: string, message: string) => {
                     post("resRegister", null, e.message);
                 }
                 break;
-            case "validateEmail":
+            case "sendCodeEmail":
                 try {
-                    await validateEmail(messageParse.message);
-                    post("resValidateEmail");
+                    await sendCodeEmail(messageParse.message);
+                    post("resSendCodeEmail");
                 } catch (e) {
-                    post("resValidateEmail", null, e.message);
+                    post("resSendCodeEmail", null, e.message);
                 }
                 break;
             case "updateName":
@@ -55,10 +56,18 @@ subscriber.on('message', async (channel: string, message: string) => {
                     post("resChangePassword", null, e.message);
                 }
                 break;
+            case "restorePassword":
+                try {
+                    await restorePassword(messageParse.message);
+                    post("resRestorePassword");
+                } catch (e) {
+                    post("resRestorePassword", null, e.message);
+                }
+                break;
         }
     } catch (e) {
         console.error("Error while test microservice. ", + e)
     }
 });
 
-subscriber.subscribe('register', 'login', 'validateEmail', 'updateName', 'changePassword');
+subscriber.subscribe('register', 'login', 'sendCodeEmail', 'updateName', 'changePassword', 'restorePassword');

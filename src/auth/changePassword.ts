@@ -1,7 +1,6 @@
 import findUser from "../db/findUser";
 import bcrypt from "bcrypt";
-import cryptPassword from "./cryptPassword";
-import {userModel} from "../db/db";
+import updatePassword from "../db/updatePassword";
 
 export default async function changePassword(body:any) {
     if (!body.oldPassword || !body.password || !body.confirm) {
@@ -45,18 +44,5 @@ export default async function changePassword(body:any) {
         throw new Error("Incorrect password");
     }
 
-    try {
-        let hash = await cryptPassword(password);
-        await userModel.update({
-            password: hash,
-        }, {
-            where: {
-                username: username
-            }
-        });
-        return;
-    } catch (e) {
-        console.error("Error while update user's info. " + e)
-        throw new Error("Server error");
-    }
+    return await updatePassword(password, username);
 }

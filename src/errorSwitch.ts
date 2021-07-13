@@ -45,6 +45,9 @@ export default function errorSwitch(res: any, err: string) {
         case "Service Unavailable":
             res.status(503);
             break;
+        case "Cannot update password":
+            res.status(400);
+            break;
         default:
             res.status(500);
             break

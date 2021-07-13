@@ -1,4 +1,3 @@
-import sanitizer from "sanitizer";
 import findUser from "../db/findUser";
 import bcrypt from "bcrypt";
 import giveToken from "../token/give";

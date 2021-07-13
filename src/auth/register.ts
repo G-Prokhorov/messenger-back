@@ -4,6 +4,7 @@ import redis from "redis";
 import giveToken from "../token/give";
 import {Op} from "sequelize";
 import cryptPassword from "./cryptPassword";
+import {getKey} from "./key";
 
 const client = redis.createClient();
 
@@ -27,17 +28,7 @@ export default async function register(body: any) {
     let result: any;
 
     try {
-        result = await new Promise((resolve, reject) => client.get(email, (err, data) => {
-            if (err) {
-                return reject("Server error")
-            }
-
-            if (!data) {
-                return reject("Key not exist");
-            }
-
-            resolve(data);
-        }));
+        result = await getKey(email);
         result = JSON.parse(result);
     } catch (e) {
         throw new Error(e);
