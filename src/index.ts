@@ -93,6 +93,8 @@ app.get("/checkTokens", middleware, (req, res) => res.send({
     username: req.userName,
     //@ts-ignore
     name: req.u_name,
+    //@ts-ignore
+    email: req.emailUser,
 }));
 
 app.put("/createChat", middleware, (req, res) => {
