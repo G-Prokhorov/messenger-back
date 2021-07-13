@@ -4,6 +4,7 @@ import login from "./auth/login";
 import postFunc from "./post";
 import validateEmail from "./auth/validateEmail";
 import updateName from "./auth/updateName";
+import changePassword from "./auth/changePassword";
 
 let publisher = redis.createClient();
 const subscriber = redis.createClient();
@@ -46,10 +47,18 @@ subscriber.on('message', async (channel: string, message: string) => {
                     post("resUpdateName", null, e.message);
                 }
                 break;
+            case "changePassword":
+                try {
+                    await changePassword(messageParse.message);
+                    post("resChangePassword");
+                } catch (e) {
+                    post("resChangePassword", null, e.message);
+                }
+                break;
         }
     } catch (e) {
         console.error("Error while test microservice. ", + e)
     }
 });
 
-subscriber.subscribe('register', 'login', 'validateEmail', 'updateName');
+subscriber.subscribe('register', 'login', 'validateEmail', 'updateName', 'changePassword');

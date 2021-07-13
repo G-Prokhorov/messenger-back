@@ -36,6 +36,12 @@ export default function errorSwitch(res: any, err: string) {
         case "User exist":
             res.status(409);
             break;
+        case "Password does not meet the requirement":
+            res.status(400);
+            break;
+        case "Old and new password cannot match":
+            res.status(400);
+            break;
         default:
             res.status(500);
             break

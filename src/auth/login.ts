@@ -11,14 +11,15 @@ export default async function login(body: any) {
         throw new Error("Bad request");
     }
 
-    try {
-        username = "@" + sanitizer.escape(body.username);
-        password = sanitizer.escape(body.password);
-    } catch {
-        throw new Error("Server error");
-    }
+    username = "@" + body.username;
+    password = body.password;
+    let result: any;
 
-    let result = await findUser(username);
+    try {
+        result = await findUser(username);
+    } catch (e) {
+        throw new Error("Server error")
+    }
 
     if (!result) {
         throw new Error("User not found");

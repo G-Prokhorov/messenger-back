@@ -225,6 +225,23 @@ app.patch("/updateName", middleware, (req, res) => {
         userId: req.userId,
         name: req.body.name,
     }, id);
+});
+
+app.patch("/changePassword", middleware, (req, res) => {
+    const id = pubSub.subscribe("resChangePassword", (err: string, message: string) => {
+        if (err !== 'success') {
+            errorSwitch(res, err);
+            return;
+        }
+
+        return res.sendStatus(200);
+    });
+
+    pubSub.publish("changePassword", {
+            //@ts-ignore
+            username: req.userName,
+            ...req.body,
+        }, id);
 })
 
 app.listen(port, () => {

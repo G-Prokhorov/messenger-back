@@ -3,17 +3,11 @@ import {userModel} from "../db/db";
 import redis from "redis";
 import giveToken from "../token/give";
 import {Op} from "sequelize";
+import cryptPassword from "./cryptPassword";
 
 const client = redis.createClient();
 
 export default async function register(body: any) {
-    const saltRounds = 10;
-    let username: string;
-    let password: string;
-    let confirm: string;
-    let key: string;
-    let email: string;
-
     if (!body.username || !body.password || !body.confirm || !body.key || !body.email) {
         throw new Error("Bad request");
     }
@@ -24,11 +18,11 @@ export default async function register(body: any) {
         throw new Error("User must not include special characters");
     }
 
-    username = "@" + body.username;
-    password = body.password;
-    confirm = body.confirm;
-    email = body.email;
-    key = body.key;
+    let username: string = "@" + body.username;
+    let password: string = body.password;
+    let confirm: string = body.confirm;
+    let key: string = body.key;
+    let email: string = body.email;
 
     let result: any;
 
@@ -53,13 +47,13 @@ export default async function register(body: any) {
         throw new Error("Keys don't match");
     }
 
-    if ((username.length > 51) || (password.length > 30) || (password.length < 6) || (password !== confirm)) {
+    if ((username.length > 31) || (password.length > 50) || (password.length < 6) || (password !== confirm)) {
         throw new Error("Password does not meet the requirement");
     }
 
     try {
-        const salt = await bcrypt.genSalt(saltRounds);
-        const hash = await bcrypt.hash(password, salt);
+
+        const hash = await cryptPassword(password);
         let result = await userModel.findOrCreate({
             where: {
                 [Op.or]: [
@@ -81,7 +75,7 @@ export default async function register(body: any) {
         if (!result.pop()) {
             throw "User exist";
         }
-    }  catch (err) {
+    } catch (err) {
         if (err === "User exist") {
             throw new Error("User exist");
         }
