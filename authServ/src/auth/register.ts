@@ -1,4 +1,3 @@
-import bcrypt from "bcrypt";
 import {userModel} from "../db/db";
 import redis from "redis";
 import giveToken from "../token/give";
