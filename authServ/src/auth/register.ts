@@ -5,7 +5,7 @@ import {Op} from "sequelize";
 import cryptPassword from "./cryptPassword";
 import {getKey} from "./key";
 
-const client = redis.createClient();
+const client = redis.createClient(6379, 'redis');
 
 export default async function register(body: any) {
     if (!body.username || !body.password || !body.confirm || !body.key || !body.email) {

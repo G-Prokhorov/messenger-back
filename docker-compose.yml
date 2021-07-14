@@ -15,11 +15,14 @@ services:
       - PGDATA=/var/lib/postgresql/data
     volumes:
       - ./psql_db:/var/lib/postgresql/data/
+  redis:
+    image: redis:5.0.12-alpine
+    container_name: redis
+    restart: always
+    ports:
+      - 9191:6379
   server:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: nodejs
+    build: './gateWay'
     container_name: server
     restart: always
     env_file: .env
@@ -31,16 +34,11 @@ services:
       - REFRESH_TOKEN=$REFRESH_TOKEN
     ports:
       - 5050:5050
-    volumes:
-      - .:/usr/src/app
-      - ./node_modules:/usr/src/app/node_modules
     links:
       - db
+      - redis
   ws:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: ws
+    build: './wsServ'
     container_name: ws
     restart: always
     env_file: .env
@@ -50,13 +48,41 @@ services:
       - DB_PASS=$DB_PASS
       - TOKEN=$TOKEN
       - REFRESH_TOKEN=$REFRESH_TOKEN
-    ports:
-      - 5055:5055
-    volumes:
-      - .:/usr/src/app
-      - ./node_modules:/usr/src/app/node_modules
     links:
       - db
+      - redis
+      - server
+  message:
+    build: './messageServ'
+    container_name: message
+    restart: always
+    env_file: .env
+    environment:
+      - DB_HOST=db
+      - DB_USER=$DB_USER
+      - DB_PASS=$DB_PASS
+    links:
+      - db
+      - redis
+      - server
+  auth:
+    build: './authServ'
+    container_name: auth
+    restart: always
+    env_file: .env
+    environment:
+      - DB_HOST=db
+      - DB_USER=$DB_USER
+      - DB_PASS=$DB_PASS
+      - TOKEN=$TOKEN
+      - REFRESH_TOKEN=$REFRESH_TOKEN
+      - EMAIL=$EMAIL
+      - PASSWORD_EMAIL=$PASSWORD_EMAIL
+    ports:
+      - 5055:5055
+    links:
+      - db
+      - redis
       - server
   nginx:
     image: nginx:1.21.0-alpine

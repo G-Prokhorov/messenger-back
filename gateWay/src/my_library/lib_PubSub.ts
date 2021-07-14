@@ -8,8 +8,8 @@ export default class lib_PubSub {
     private timers = new Map();
 
     constructor(cb: any) {
-        this.publisher = redis.createClient();
-        this.subscriber = redis.createClient();
+        this.publisher = redis.createClient(6379, 'redis');
+        this.subscriber = redis.createClient(6379, 'redis');
         this.subscriber.on("message", async (channel: string, message: string) => {
             if (this.map.has(channel)) {
                 let messageParse = JSON.parse(message);

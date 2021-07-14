@@ -7,8 +7,8 @@ import updateName from "./auth/updateName";
 import changePassword from "./auth/changePassword";
 import restorePassword from "./auth/restorePassword";
 
-let publisher = redis.createClient();
-const subscriber = redis.createClient();
+let publisher = redis.createClient(6379, 'redis');
+const subscriber = redis.createClient(6379, 'redis');
 
 subscriber.on('message', async (channel: string, message: string) => {
     try {

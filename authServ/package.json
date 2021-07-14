@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node ./dist/authServ.js",
     "dev": "nodemon --watch \"src/**\" --ext \"ts,json\" --ignore \"src/**/*.spec.ts\" --exec \"ts-node src/authServ.ts\"",
-    "build": "tsc -w",
+    "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

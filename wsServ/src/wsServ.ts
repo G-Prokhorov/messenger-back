@@ -13,16 +13,24 @@ const WSport = 5055;
 const pubSub = new lib_PubSub(userAlertCB);
 
 webSocketServer.on('connection', async (ws, req) => {
+    if (!req.headers.cookie) {
+        ws.close(1003);
+    }
     let cookie = sanitizer.escape(req.headers.cookie);
     let token = null, refreshToken = null;
-    cookie.split(";").forEach(str => {
-        let nameCookie = str.split("=")[0];
-        if (nameCookie.includes("token")) {
-            token = str.split("=")[1].replace(";", "");
-        } else if (nameCookie.includes("refreshToken")) {
-            refreshToken = str.split("=")[1].replace(";", "");
-        }
-    });
+    try {
+        cookie.split(";").forEach(str => {
+            let nameCookie = str.split("=")[0];
+            if (nameCookie.includes("token")) {
+                token = str.split("=")[1].replace(";", "");
+            } else if (nameCookie.includes("refreshToken")) {
+                refreshToken = str.split("=")[1].replace(";", "");
+            }
+        });
+    } catch {
+        ws.close(1003);
+    }
+
 
     let username:string;
     let nameU: string
