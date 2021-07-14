@@ -16,7 +16,7 @@ subscriber.on('message', async (channel: string, message: string) => {
                 await M.createChat(messageParse, post);
                 break;
             case "sendMessage":
-                await M.sendMessage(messageParse, post, publisher);
+                await M.sendMessage(messageParse, post);
                 break;
             case "getMessage":
                 await M.getMessage(messageParse, post);

@@ -36,12 +36,14 @@ webSocketServer.on('connection', async (ws, req) => {
         return;
     }
 
-    let id:number = pubSub.subscribe(username, (err:string, obj:any) => {
+    let id:number = pubSub.subscribe(username, (err:string, obj:any, idSender: number) => {
+        console.log(id, idSender, obj);
         if (err !== "success") {
             ws.send("Error. " + err);
             return;
+        } else if (idSender !== id) {
+            ws.send(obj);
         }
-        ws.send(JSON.stringify(obj));
     }, false);
 
     ws.on('message', (m:string) => {
@@ -63,7 +65,7 @@ webSocketServer.on('connection', async (ws, req) => {
                     sender: username,
                     name: nameU,
                     ...parse.data
-                });
+                }, id);
                 break;
             default:
                 ws.send("Unknown method");

@@ -16,17 +16,15 @@ export default class MessageClass {
         }
     }
 
-    public async sendMessage(messageParse: any, post: any, publisher: any) {
+    public async sendMessage(messageParse: any, post: any) {
         try {
             let users = await sendMessageWithSanitizer(messageParse.message);
             users.forEach((value: any) => {
-                publisher.publish(value.username, JSON.stringify({
-                    err: "success",
-                    message: {
-                        message: messageParse.message,
-                    }
-                }));
+                post(value.username, messageParse.message);
             });
+            let user = sanitizer.escape(messageParse.message.sender);
+            post(user, messageParse.message);
+
         } catch (e) {
             try {
                 let user = sanitizer.escape(messageParse.message.sender);
@@ -46,7 +44,7 @@ export default class MessageClass {
         }
     }
 
-    public  async markRead(messageParse: any, post: any) {
+    public async markRead(messageParse: any, post: any) {
         try {
             await markRead(messageParse.message);
             post("resMarkRead", "Okay");
@@ -55,7 +53,7 @@ export default class MessageClass {
         }
     }
 
-    public  async getChats(messageParse: any, post: any) {
+    public async getChats(messageParse: any, post: any) {
         console.log(messageParse)
         try {
             let chats = await getChats(messageParse.message.username, messageParse.message.userId);
@@ -71,12 +69,11 @@ export default class MessageClass {
         try {
             let result = await sendPhoto(messageParse.message);
             result.forEach((elmt: any) => {
-                elmt.users.forEach((value:any) => {
+                elmt.users.forEach((value: any) => {
                     publisher.publish(value.username, JSON.stringify({
                         err: "success",
-                        message: {
-                            message: elmt.message,
-                        }
+                        message: JSON.stringify(elmt.message),
+                        id: -1
                     }));
                 })
             });
