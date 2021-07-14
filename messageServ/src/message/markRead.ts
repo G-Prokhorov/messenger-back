@@ -1,4 +1,3 @@
-import findUser from "../db/findUser";
 import checkChat from "../db/checkChat";
 import updateNumberMes from "../db/updateNumberMes";
 import sequelize from "sequelize";

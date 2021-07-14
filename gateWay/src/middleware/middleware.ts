@@ -1,4 +1,3 @@
-import sanitizer from "sanitizer";
 import checkTokens from "../token/checkTokens";
 import setToken from "../token/set";
 

@@ -1,5 +1,4 @@
-import findUser from "../db/findUser";
-import {chatModel, messageModel, sequelize, userModel} from "../db/db";
+import {sequelize} from "../db/db";
 import {QueryTypes} from "sequelize";
 
 export default async function getChats(username: string, userId: string) {

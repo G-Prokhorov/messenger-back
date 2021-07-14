@@ -1,6 +1,5 @@
 import {messageModel, userModel} from "../db/db";
 import checkChat from "../db/checkChat";
-import findUser from "../db/findUser";
 
 export default async function getMessage(body: any) {
     if (!body.start || !body.chatId || !body.sender || !body.userId) {

@@ -1,8 +1,3 @@
-
-//check key
-//check new password
-//update db
-
 import {getKey} from "./key";
 import updatePassword from "../db/updatePassword";
 
