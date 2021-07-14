@@ -38,7 +38,6 @@ export default async function sendPhoto(data: any) {
                     });
                 });
                 let res = await sendMessage(data.userId, data.chatId, result.Location, true);
-                console.log(res);
                 users.push({
                     users: res,
                     message: {
@@ -57,6 +56,5 @@ export default async function sendPhoto(data: any) {
         }
     }
 
-    console.log(users);
     return users;
 }

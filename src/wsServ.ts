@@ -37,7 +37,6 @@ webSocketServer.on('connection', async (ws, req) => {
     }
 
     let id:number = pubSub.subscribe(username, (err:string, obj:any, idSender: number) => {
-        console.log(id, idSender, obj);
         if (err !== "success") {
             ws.send("Error. " + err);
             return;
@@ -54,7 +53,6 @@ webSocketServer.on('connection', async (ws, req) => {
             ws.send("Server error");
             return;
         }
-        console.log(parse);
         switch (parse.action) {
             case "send message":
                 if (!parse.data.chatId || !parse.data.message) {

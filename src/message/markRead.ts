@@ -4,7 +4,6 @@ import updateNumberMes from "../db/updateNumberMes";
 import sequelize from "sequelize";
 
 export default async function markRead(body: any) {
-    console.log(body)
     if (!body.value || !body.chatId || !body.username || !body.userId) {
         throw new Error("Bad request");
     }

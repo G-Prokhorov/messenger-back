@@ -54,7 +54,6 @@ export default class MessageClass {
     }
 
     public async getChats(messageParse: any, post: any) {
-        console.log(messageParse)
         try {
             let chats = await getChats(messageParse.message.username, messageParse.message.userId);
             post("resGetChats", chats);
@@ -65,7 +64,6 @@ export default class MessageClass {
     }
 
     public async sendPhoto(messageParse: any, post: any, publisher: any) {
-        console.log(messageParse)
         try {
             let result = await sendPhoto(messageParse.message);
             result.forEach((elmt: any) => {

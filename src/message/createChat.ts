@@ -5,8 +5,6 @@ import {v4 as uuidv4} from 'uuid';
 export default async function createChat(users: any, creator: string) {
     try {
         users.push(creator);
-        console.log(users);
-        // users = JSON.parse(users);
     } catch (e) {
         console.error(e)
         throw new Error("Server error");
@@ -60,7 +58,7 @@ export default async function createChat(users: any, creator: string) {
             having: sequelize.literal('count(id_user) = 2'),
         });
     } catch (e) {
-        console.log(e);
+        console.error(e);
         throw new Error("Server error");
     }
 
