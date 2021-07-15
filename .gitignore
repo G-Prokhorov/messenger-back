@@ -107,6 +107,8 @@ out
 # Nuxt.js build / generate output
 .nuxt
 dist
+public
+psql_db
 
 # Gatsby files
 .cache/
@@ -143,3 +145,5 @@ dist
 token.json
 rootkey.csv
 credentials.txt
+/gateWay/public/
+/gateWay/public/assets

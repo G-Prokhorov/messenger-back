@@ -11,6 +11,7 @@ import sanitizeMiddlewareBody from "./middleware/sanitizeMiddlewareBody";
 import sanitizeMiddleware from "./middleware/sanitizeMiddleware";
 import errorSwitch from "./errorSwitch";
 import multer from "multer";
+import path from "path";
 
 require('dotenv').config();
 
@@ -34,9 +35,9 @@ const corsOptions = {
 }
 
 app.use(cors(corsOptions));
-
+app.use(express.static(__dirname + "/../public"));
 app.get("/", (req, res) => {
-    res.send("Hello, world!");
+    res.sendFile(__dirname + "/../public/index.html");
 });
 
 app.post(["/register", "/login"], (req, res) => {
@@ -261,6 +262,10 @@ app.patch("/restorePassword", (req, res) => {
     });
 
     pubSub.publish("restorePassword", req.body, id);
+});
+
+app.get("*", (req, res) => {
+    res.redirect("/");
 });
 
 app.listen(port, () => {
