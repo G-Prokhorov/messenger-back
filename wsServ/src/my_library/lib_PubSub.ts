@@ -1,4 +1,5 @@
 import redis from "redis";
+require('dotenv').config();
 
 export default class lib_PubSub {
     protected publisher: any;
@@ -8,8 +9,8 @@ export default class lib_PubSub {
     private timers = new Map();
 
     constructor(cb: any) {
-        this.publisher = redis.createClient(6379, 'redis');
-        this.subscriber = redis.createClient(6379, 'redis');
+        this.publisher = redis.createClient(6379, process.env.REDIS_HOST);
+        this.subscriber = redis.createClient(6379, process.env.REDIS_HOST);
         this.subscriber.on("message", async (channel: string, message: string) => {
             if (this.map.has(channel)) {
                 let messageParse = JSON.parse(message);

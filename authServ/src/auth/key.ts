@@ -1,6 +1,6 @@
 import redis from "redis";
 
-const client = redis.createClient(6379, 'redis');
+const client = redis.createClient(6379, process.env.REDIS_HOST);
 
 export function checkKey(type: string, email: string) {
     return new Promise((resolve, reject) => client.get(email, (err, data: any) => {

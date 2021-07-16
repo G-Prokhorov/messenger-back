@@ -28,7 +28,7 @@ app.use(/\/((?!createChat).)*/, sanitizeMiddlewareBody);
 const pubSub = new lib_PubSub(microServCB);
 
 const corsOptions = {
-    origin: "http://localhost:8080",
+    origin: "http://localhost:9000",
     allowedHeaders: "Origin, X-Requested-With, Content-Type, Accept, Special-Request-Header",
     credentials: true,
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
