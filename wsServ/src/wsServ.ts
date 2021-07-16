@@ -92,4 +92,4 @@ webSocketServer.on('connection', async (ws, req) => {
     ws.send('Connect!');
 });
 
-server.listen(WSport, () => console.log("WebSocket started"));
+server.listen(WSport, "ws",() => console.log("WebSocket started"));
