@@ -144,3 +144,4 @@ dist
 token.json
 rootkey.csv
 credentials.txt
+.aws
