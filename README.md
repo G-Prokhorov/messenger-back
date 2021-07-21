@@ -21,7 +21,7 @@ messages.</p>
         <b>PASSWORD_EMAIL=</b> password from email
     ';</li>
     <li>Create folder '.aws' with file 'credentials';</li>
-    <li>In 'credentials': '
+    <li>In 'credentials': <br/>'
         [default] <br/>
         aws_access_key_id = <br/> 
         aws_secret_access_key =
