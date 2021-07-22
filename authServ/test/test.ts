@@ -5,7 +5,7 @@ describe('Authentication test', () => {
     it('bad request check', async () => {
         try {
             //@ts-ignore
-            await changePassword({})
+            await changePassword()
         } catch (err) {
             expect(err.message).to.be.equal("Bad request");
         }

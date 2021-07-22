@@ -10,6 +10,10 @@ interface input {
 }
 
 export default async function changePassword(body:input) {
+    if (!body) {
+        throw new Error("Bad request");
+    }
+
     if (!body.oldPass || !body.password || !body.confirm) {
         throw new Error("Bad request");
     }
