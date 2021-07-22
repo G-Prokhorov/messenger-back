@@ -1,10 +1,9 @@
 import redis from "redis";
 import postFunc from "./post";
-import MessageClass from "./message/messageClass";
+import M from "./message/messageClass";
 
 const publisher = redis.createClient(6379, process.env.REDIS_HOST);
 const subscriber = redis.createClient(6379, process.env.REDIS_HOST);
-const M = new MessageClass();
 
 subscriber.on('message', async (channel: string, message: string) => {
     try {

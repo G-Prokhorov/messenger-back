@@ -7,7 +7,7 @@ import getChats from "./getChats";
 import sendPhoto from "./sendFile";
 
 export default class MessageClass {
-    public async createChat(messageParse: any, post: any) {
+    public static async createChat(messageParse: any, post: any) {
         try {
             let res = await createChat(messageParse.message.users, messageParse.message.creator);
             post("resCreateChat", res);
@@ -16,7 +16,7 @@ export default class MessageClass {
         }
     }
 
-    public async sendMessage(messageParse: any, post: any) {
+    public static async sendMessage(messageParse: any, post: any) {
         try {
             let users = await sendMessageWithSanitizer(messageParse.message);
             users.forEach((value: any) => {
@@ -35,7 +35,7 @@ export default class MessageClass {
         }
     }
 
-    public async getMessage(messageParse: any, post: any) {
+    public static async getMessage(messageParse: any, post: any) {
         try {
             let messages = await getMessage(messageParse.message);
             post("resGetMessage", messages);
@@ -44,7 +44,7 @@ export default class MessageClass {
         }
     }
 
-    public async markRead(messageParse: any, post: any) {
+    public static async markRead(messageParse: any, post: any) {
         try {
             await markRead(messageParse.message);
             post("resMarkRead", "Okay");
@@ -53,7 +53,7 @@ export default class MessageClass {
         }
     }
 
-    public async getChats(messageParse: any, post: any) {
+    public static async getChats(messageParse: any, post: any) {
         try {
             let chats = await getChats(messageParse.message.username, messageParse.message.userId);
             post("resGetChats", chats);
@@ -63,7 +63,7 @@ export default class MessageClass {
         }
     }
 
-    public async sendPhoto(messageParse: any, post: any, publisher: any) {
+    public static async sendPhoto(messageParse: any, post: any, publisher: any) {
         try {
             let result = await sendPhoto(messageParse.message);
             result.forEach((elmt: any) => {
