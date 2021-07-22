@@ -6,6 +6,10 @@ export default async function login(body: any) {
     let username: string;
     let password: string;
 
+    if (!body) {
+        throw new Error("Bad request");
+    }
+
     if (!body.username || !body.password) {
         throw new Error("Bad request");
     }

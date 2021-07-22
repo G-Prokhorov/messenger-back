@@ -65,6 +65,11 @@ app.post(["/register", "/login"], (req, res) => {
 app.get("/checkUser", async (req, res) => {
     let username: string;
 
+    if (!req.query) {
+        res.sendStatus(400);
+        return;
+    }
+
     if (!req.query.username) {
         res.sendStatus(400);
         return;

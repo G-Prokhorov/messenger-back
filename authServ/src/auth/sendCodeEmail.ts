@@ -12,6 +12,10 @@ let transporter = nodemailer.createTransport({
 });
 
 export default async function sendCodeEmail(body: any) {
+    if (!body) {
+        throw new Error("Bad request");
+    }
+
     if (!body.email) {
         throw new Error("Bad request")
     }

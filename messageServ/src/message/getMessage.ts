@@ -2,6 +2,10 @@ import {messageModel, userModel} from "../db/db";
 import checkChat from "../db/checkChat";
 
 export default async function getMessage(body: any) {
+    if (!body) {
+        throw new Error("Bad request");
+    }
+
     if (!body.start || !body.chatId || !body.sender || !body.userId) {
         throw new Error("Bad request");
     }

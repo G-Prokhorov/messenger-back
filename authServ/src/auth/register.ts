@@ -8,6 +8,10 @@ import {getKey} from "./key";
 const client = redis.createClient(6379, process.env.REDIS_HOST);
 
 export default async function register(body: any) {
+    if (!body) {
+        throw new Error("Bad request");
+    }
+
     if (!body.username || !body.password || !body.confirm || !body.key || !body.email) {
         throw new Error("Bad request");
     }

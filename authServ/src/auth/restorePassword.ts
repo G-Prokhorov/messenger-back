@@ -2,6 +2,10 @@ import {getKey} from "./key";
 import updatePassword from "../db/updatePassword";
 
 export default async function restorePassword(body: any) {
+    if (!body) {
+        throw new Error("Bad request");
+    }
+
     if (!body.password || !body.confirm || !body.key || !body.email) {
         throw new Error("Bad request");
     }

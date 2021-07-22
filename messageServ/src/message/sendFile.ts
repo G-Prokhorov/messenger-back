@@ -8,6 +8,10 @@ AWS.config.credentials = credentials;
 let s3 = new AWS.S3();
 
 export default async function sendPhoto(data: any) {
+    if (!data) {
+        throw new Error("Bad request");
+    }
+
     if (!data.chatId || !data.files) {
         throw new Error("Bad request");
     }

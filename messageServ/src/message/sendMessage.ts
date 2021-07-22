@@ -6,6 +6,10 @@ import updateNumberMes from "../db/updateNumberMes";
 
 
 export async function sendMessageWithSanitizer(body: any) {
+    if (!body) {
+        throw new Error("Bad request");
+    }
+
     if (!body.message || !body.sender || !body.chatId) {
         throw new Error("Bad request");
     }
