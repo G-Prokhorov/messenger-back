@@ -2,15 +2,19 @@ import findUser from "../db/findUser";
 import bcrypt from "bcrypt";
 import updatePassword from "../db/updatePassword";
 
-export default async function changePassword(body:any) {
-    if (!body.oldPassword || !body.password || !body.confirm) {
+interface input {
+    username: string,
+    oldPass: string,
+    password: string,
+    confirm: string,
+}
+
+export default async function changePassword(body:input) {
+    if (!body.oldPass || !body.password || !body.confirm) {
         throw new Error("Bad request");
     }
 
-    let username: string = body.username;
-    let oldPass: string = body.oldPassword;
-    let password: string = body.password;
-    let confirm: string = body.confirm;
+    let {username, oldPass, password, confirm} = body;
 
     if (oldPass === password) {
         throw new Error("Old and new password cannot match");
