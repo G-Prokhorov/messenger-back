@@ -50,7 +50,7 @@ export default async function sendCodeEmail(body: any) {
         await transporter.sendMail(mailOptions)
     } catch (e) {
         console.error("Error while send mail. " + e);
-        throw new Error("Server error");
+        throw new Error("Cannot send on this email");
     }
 }
 
