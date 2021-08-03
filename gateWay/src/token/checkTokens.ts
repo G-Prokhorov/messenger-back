@@ -5,7 +5,7 @@ import giveToken from "./give";
 export default async function checkTokens(token: string, refresh: string) {
     try {
         let decode = jwt.verify(token, process.env.TOKEN);
-        let check = await findUser((<any>decode).username);
+        let check = await findUser((<any>decode).username);        
         if (!check) {
             throw new Error("User not exist");
         }
