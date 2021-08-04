@@ -1,12 +1,12 @@
 import { ForbiddenException, Injectable, InternalServerErrorException, NestMiddleware, Res } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
-import setToken from "../token/set";
-import checkTokens from "../token/checkTokens";
+import setToken from '../token/set';
+import checkTokens from '../token/checkTokens';
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
   async use(req: Request, res: Response, next: NextFunction) {
-    console.log("Auth middleware");
+    console.log('Auth middleware');
     let token;
     let refresh;
     try {
@@ -27,10 +27,10 @@ export class AuthMiddleware implements NestMiddleware {
         if (result) {
             setToken(res, result);
         }
-        req["userName"] = username;
-        req["userId"] = userId;
-        req["u_name"] = name;
-        req["emailUser"] = emailUser;
+        req.body["_userName_"] = username;
+        req.body["_userId_"] = userId;
+        req.body["_u_name_"] = name;
+        req.body["_emailUser_"] = emailUser;
         next();
     } catch (e) {        
         switch (e.message) {            
