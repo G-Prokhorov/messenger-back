@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable, InternalServerErrorException, NestMiddleware, Res } from '@nestjs/common';
+import { ForbiddenException, Injectable, InternalServerErrorException, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import setToken from '../token/set';
 import checkTokens from '../token/checkTokens';
@@ -14,7 +14,7 @@ export class AuthMiddleware implements NestMiddleware {
         refresh = req.cookies.refreshToken;
     } catch (e) {
         if (!(e instanceof TypeError)) {
-            console.error("Error while get tokens fron cookie. " + e);
+            console.error("Error while get tokens front cookie. " + e);
         }
         throw new ForbiddenException();
     }
