@@ -1,16 +1,17 @@
-import { Injectable, Param } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import {loginInterface, registerInterface, sendCodeInterface} from "../interface/auth.interface";
 
 @Injectable()
 export class AuthService {
-    register():string {
-        return "Register"
+    register(body: registerInterface) {
+        return body;
     }
 
-    login(): string {
-        return "Login"
+    login(body: loginInterface) {
+        return body;
     }
 
-    sendCode(type: string): string {
-        return `Send code for ${type}`
+    sendCode(type: string, body: sendCodeInterface): string {
+        return `Send code for ${type}, ${body.email}`;
     }
 }
