@@ -1,16 +1,17 @@
 import { Injectable } from '@nestjs/common';
+import {getMessageInterface, markReadInterface, sendPhotoInterface} from "../interface/message.interface";
 
 @Injectable()
 export class MessageService {
-    getMessage(): string {
-        return "Get message";
+    getMessage(body: getMessageInterface) {
+        return body;
     }
 
-    markRead(): string {
-        return "Mark read";
+    markRead(body: markReadInterface) {
+        return body;
     }
 
-    sendPhoto(): string {
-        return "Send photo";
+    sendPhoto(body: sendPhotoInterface) {
+        return body;
     }
 }
