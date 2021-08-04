@@ -1,5 +1,5 @@
-import {ForbiddenException, Injectable} from '@nestjs/common';
-import {changePasswordInterface, restorePasswordInterface} from "../interface/settings.interface";
+import {Injectable} from '@nestjs/common';
+import {changeNameInterface, changePasswordInterface, restorePasswordInterface} from "../interface/settings.interface";
 import lib_PubSub from "../my_library/lib_PubSub";
 import librarySingleton from "../my_library/librarySingleton";
 import errorSwitch from "../errorSwitch";
@@ -9,8 +9,8 @@ import errorSwitch from "../errorSwitch";
 export class SettingsService {
     private pubSub: lib_PubSub = librarySingleton.getInstance();
 
-    updateName():string {
-        return "Update name";
+    updateName(body: changeNameInterface):changeNameInterface {
+        return body;
     }
 
     changePassword(body:changePasswordInterface, res) {

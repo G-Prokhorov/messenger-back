@@ -17,6 +17,9 @@ export class ValidationPipe implements PipeTransform<any> {
         for (let val in value) {
             try {
                 if (typeof value[val] === 'string') {
+                    if (!value[val]) {
+                        throw "Empty";
+                    }
                     value[val] = sanitizer.escape(value[val]);
                 }
             } catch {

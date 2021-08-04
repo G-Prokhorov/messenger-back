@@ -11,3 +11,8 @@ export interface changePasswordInterface {
     password: string,
     confirm: string,
 }
+
+export interface changeNameInterface {
+    _userId_: string,
+    name: string,
+}

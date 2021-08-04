@@ -14,8 +14,6 @@ export class restorePasswordDto {
 }
 
 export class changePasswordDto {
-    _userName_: string;
-
     @IsString()
     oldPass: string;
 
@@ -24,4 +22,13 @@ export class changePasswordDto {
 
     @IsString()
     confirm: string;
+
+    _userName_: string;
+}
+
+export class changeNameDto {
+    @IsString()
+    name:string;
+
+    _userId_: string;
 }
