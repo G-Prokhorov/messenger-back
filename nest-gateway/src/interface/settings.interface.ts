@@ -4,3 +4,10 @@ export interface restorePasswordInterface {
     key: string,
     email: string,
 }
+
+export interface changePasswordInterface {
+    _userName_: string,
+    oldPass: string,
+    password: string,
+    confirm: string,
+}

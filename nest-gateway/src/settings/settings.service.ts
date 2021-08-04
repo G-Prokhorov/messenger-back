@@ -1,5 +1,5 @@
 import {ForbiddenException, Injectable} from '@nestjs/common';
-import {restorePasswordInterface} from "../interface/settings.interface";
+import {changePasswordInterface, restorePasswordInterface} from "../interface/settings.interface";
 import lib_PubSub from "../my_library/lib_PubSub";
 import librarySingleton from "../my_library/librarySingleton";
 import errorSwitch from "../errorSwitch";
@@ -13,8 +13,22 @@ export class SettingsService {
         return "Update name";
     }
 
-    changePassword():string {
-        return "Change password";
+    changePassword(body:changePasswordInterface, res) {
+        const id = this.pubSub.subscribe("resChangePassword", (err: string, message: string) => {
+            if (err !== 'success') {
+                errorSwitch(res, err);
+                return;
+            }
+
+            return res.sendStatus(200);
+        });
+
+        this.pubSub.publish("changePassword", {
+            username: body._userName_,
+            oldPass: body.oldPass,
+            password: body.password,
+            confirm: body.confirm,
+        }, id);
     }
 
     restorePassword(body: restorePasswordInterface, res) {

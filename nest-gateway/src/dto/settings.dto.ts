@@ -4,7 +4,6 @@ export class restorePasswordDto {
     @IsString()
     password: string;
 
-    @IsString()
     confirm: string;
 
     @IsString()
@@ -12,4 +11,17 @@ export class restorePasswordDto {
 
     @IsString()
     email: string;
+}
+
+export class changePasswordDto {
+    _userName_: string;
+
+    @IsString()
+    oldPass: string;
+
+    @IsString()
+    password: string;
+
+    @IsString()
+    confirm: string;
 }

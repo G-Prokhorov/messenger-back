@@ -1,4 +1,4 @@
-import {Injectable, InternalServerErrorException, NestMiddleware} from '@nestjs/common';
+import {InternalServerErrorException} from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import * as sanitizer from "sanitizer";
 

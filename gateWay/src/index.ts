@@ -240,20 +240,7 @@ app.patch("/updateName", middleware, (req, res) => {
 });
 
 app.patch("/changePassword", middleware, (req, res) => {
-    const id = pubSub.subscribe("resChangePassword", (err: string, message: string) => {
-        if (err !== 'success') {
-            errorSwitch(res, err);
-            return;
-        }
 
-        return res.sendStatus(200);
-    });
-
-    pubSub.publish("changePassword", {
-        //@ts-ignore
-        username: req.userName,
-        ...req.body,
-    }, id);
 })
 
 app.patch("/restorePassword", (req, res) => {
