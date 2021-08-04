@@ -22,7 +22,7 @@ export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
     .apply(AuthMiddleware)
-    .exclude("settings/restorePassword", "/", "auth/(.*)")
+    .exclude("settings/restorePassword", "/", "auth/(.*)", "/checkUser")
     .forRoutes("/");
   }
 }

@@ -5,6 +5,7 @@ import * as cookieParser from 'cookie-parser';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.use(cookieParser());
+  process.on("uncaughtException", (err) => console.error(err))
   await app.listen(3000);
 }
 bootstrap();

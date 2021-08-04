@@ -10,17 +10,17 @@ export class AppController {
     return this.appService.getFront();
   }
 
-  @Get("/checkUser")
+  @Get('/checkUser')
   checkUser(@Query('username') username: string): string {
     return this.appService.checkUser(username);
   }
 
-  @Get("/checkTokens")
+  @Get('/checkTokens')
   checkToken(): string {
     return this.appService.checkTokens();
   }
 
-  @Get("/logout")
+  @Get('/logout')
   logout(): string {
     return this.appService.logout();
   }
