@@ -1,6 +1,7 @@
 import { PipeTransform, Injectable, ArgumentMetadata, BadRequestException } from '@nestjs/common';
 import { validate } from 'class-validator';
 import { plainToClass } from 'class-transformer';
+import * as sanitizer from "sanitizer";
 
 @Injectable()
 export class ValidationPipe implements PipeTransform<any> {
@@ -12,6 +13,15 @@ export class ValidationPipe implements PipeTransform<any> {
         const errors = await validate(object);
         if (errors.length > 0) {
             throw new BadRequestException('Validation failed');
+        }
+        for (let val in value) {
+            try {
+                if (typeof value[val] === 'string') {
+                    value[val] = sanitizer.escape(value[val]);
+                }
+            } catch {
+                throw new BadRequestException('Validation failed');
+            }
         }
         return value;
     }
