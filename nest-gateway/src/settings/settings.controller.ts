@@ -1,22 +1,24 @@
-import { Controller, Put } from '@nestjs/common';
+import {Body, Controller, Put, Res} from '@nestjs/common';
 import { SettingsService } from './settings.service';
+import {restorePasswordDto} from "../dto/settings.dto";
+import {ValidationPipe} from "../validation.pipe";
 
 @Controller('settings')
 export class SettingsController {
-    constructor (private readonly settingService: SettingsService) {}
+  constructor(private readonly settingService: SettingsService) {}
 
-    @Put("/updateName")
-    updateName(): string {
-        return this.settingService.updateName();
-    }
+  @Put('/updateName')
+  updateName(): string {
+    return this.settingService.updateName();
+  }
 
-    @Put("/changePassword")
-    changePassword() {
-        return this.settingService.changePassword();
-    }
+  @Put('/changePassword')
+  changePassword() {
+    return this.settingService.changePassword();
+  }
 
-    @Put("/restorePassword")
-    restorePassword() {
-        return this.settingService.restorePassword();
-    }
+  @Put('/restorePassword')
+  restorePassword(@Body(new ValidationPipe()) bodyRestore: restorePasswordDto, @Res() res) {
+    return this.settingService.restorePassword(bodyRestore, res);
+  }
 }
