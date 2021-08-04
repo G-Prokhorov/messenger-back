@@ -9,7 +9,19 @@ import errorSwitch from "../errorSwitch";
 export class SettingsService {
     private pubSub: lib_PubSub = librarySingleton.getInstance();
 
-    updateName(body: changeNameInterface):changeNameInterface {
+    updateName(body: changeNameInterface, res) {
+        const id = this.pubSub.subscribe("resUpdateName", async (err: string, message: string) => {
+            if (err !== 'success') {
+                errorSwitch(res, err);
+                return;
+            }
+            return res.sendStatus(200);
+        });
+
+        this.pubSub.publish("updateName", {
+            userId: body._userId_,
+            name: body.name,
+        }, id);
         return body;
     }
 
@@ -37,7 +49,7 @@ export class SettingsService {
                 errorSwitch(res, err);
             }
 
-            return "Ok";
+            return res.sendStatus(200);
         });
 
         this.pubSub.publish("restorePassword", body, id);

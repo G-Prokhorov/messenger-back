@@ -8,8 +8,8 @@ export class SettingsController {
   constructor(private readonly settingService: SettingsService) {}
 
   @Put('/updateName')
-  updateName(@Body(new ValidationPipe()) body: changeNameDto) {
-    return this.settingService.updateName(body);
+  updateName(@Body(new ValidationPipe()) body: changeNameDto, @Res() res) {
+    return this.settingService.updateName(body, res);
   }
 
   @Put('/changePassword')

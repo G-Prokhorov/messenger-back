@@ -1,27 +1,28 @@
-import { Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import {Body, Controller, Get, Query, Res} from '@nestjs/common';
 import { AppService } from './app.service';
+import {checkTokensDto} from "./dto/app.dto";
 
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get()
-  getFront(): string {
-    return this.appService.getFront();
+  getFront(@Res() res) {
+    return this.appService.getFront(res);
   }
 
   @Get('/checkUser')
-  checkUser(@Query('username') username: string): string {
+  checkUser(@Query('username') username: string): Promise<string> {
     return this.appService.checkUser(username);
   }
 
   @Get('/checkTokens')
-  checkToken(): string {
-    return this.appService.checkTokens();
+  checkToken(@Body() bodyCheckTokens: checkTokensDto) {
+    return this.appService.checkTokens(bodyCheckTokens);
   }
 
   @Get('/logout')
-  logout(): string {
-    return this.appService.logout();
+  logout(@Res() res) {
+    return this.appService.logout(res);
   }
 }
