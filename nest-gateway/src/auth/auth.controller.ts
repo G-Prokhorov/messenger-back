@@ -1,4 +1,4 @@
-import {Controller, Post, Param, Body} from '@nestjs/common';
+import {Controller, Post, Param, Body, Res} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import {ValidationPipe} from "../validation.pipe";
 import {loginDto, registerDto, sendCodeDto} from "../dto/auth.dto";
@@ -18,7 +18,7 @@ export class AuthController {
     }
 
     @Post("/sendCode/:type")
-    sendCode(@Param('type') type:string, @Body(new ValidationPipe()) sendCodeBody: sendCodeDto):string {
-        return this.authService.sendCode(type, sendCodeBody);
+    sendCode(@Param('type') type:string, @Body(new ValidationPipe()) sendCodeBody: sendCodeDto, @Res() res) {
+        return this.authService.sendCode(type, sendCodeBody, res);
     }
 }
