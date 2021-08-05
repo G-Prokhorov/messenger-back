@@ -1,13 +1,13 @@
 import {Injectable} from '@nestjs/common';
 import {changeNameInterface, changePasswordInterface, restorePasswordInterface} from "../interface/settings.interface";
 import lib_PubSub from "../my_library/lib_PubSub";
-import librarySingleton from "../my_library/librarySingleton";
+import libraryInstance from "../my_library/libraryInstance";
 import errorSwitch from "../errorSwitch";
 
 
 @Injectable()
 export class SettingsService {
-    private pubSub: lib_PubSub = librarySingleton.getInstance();
+    private pubSub: lib_PubSub = libraryInstance.getInstance();
 
     updateName(body: changeNameInterface, res) {
         const id = this.pubSub.subscribe("resUpdateName", async (err: string, message: string) => {
