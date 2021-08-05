@@ -1,21 +1,21 @@
 export interface getMessageInterface {
     chatId: string,
-    start: string,
+    start: number,
     _userName_: string,
     _userId_: number,
 }
 
 export interface markReadInterface {
     chatId: string,
-    value: string,
+    value: number,
     _userName_: string,
     _userId_: number,
 }
 
 export interface sendPhotoInterface {
     chatId: string;
-    files: any;
-    _userId_: string;
+    files: Array<any>;
+    _userId_: number;
     _userName_: string;
     _u_name_: string;
 }

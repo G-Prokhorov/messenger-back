@@ -273,6 +273,11 @@ app.get("*", (req, res) => {
     res.redirect("/");
 });
 
+app.post("/test", (req, res) => {
+    console.log(req.body)
+    res.sendStatus(200);
+})
+
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`);
 });

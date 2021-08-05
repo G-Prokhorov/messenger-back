@@ -1,11 +1,13 @@
-import {IsString} from "class-validator";
+import {IsArray, IsNumber, IsString} from "class-validator";
+import {Type} from "class-transformer";
 
 export class getMessageDto {
     @IsString()
     chatId: string;
 
-    @IsString()
-    start: string;
+    @IsNumber()
+    @Type(() => Number)
+    start: number;
 
     _userName_: string;
     _userId_: number;
@@ -15,8 +17,9 @@ export class markReadDto {
     @IsString()
     chatId: string;
 
-    @IsString()
-    value: string;
+    @IsNumber()
+    @Type(() => Number)
+    value: number;
 
     _userName_: string;
     _userId_: number;
@@ -27,7 +30,7 @@ export class sendPhotoDto {
     chatId: string;
     files: any;
 
-    _userId_: string;
+    _userId_: number;
     _userName_: string;
     _u_name_: string;
 }
