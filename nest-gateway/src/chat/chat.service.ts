@@ -26,10 +26,15 @@ export class ChatService {
     }
 
     createChat(body: createChatInterface, userInfo: reqUserInterface, res) {
-        let users
+        let users: Array<string>;
         try {
-            users = JSON.parse(body.users)
-        } catch {
+            if (Array.isArray(body.users)) {
+                users = body.users
+            } else {
+                users = JSON.parse(body.users)
+            }
+        } catch (e) {
+            console.error("Error while parse array. " + e)
             throw new InternalServerErrorException();
         }
         const id = this.pubSub.subscribe("resCreateChat", (err: string, message: string) => {
