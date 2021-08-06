@@ -5,5 +5,5 @@ export class getChatDto {
 
 export class createChatDto {
     _userName_: string;
-    users: string[];
+    users: string;
 }

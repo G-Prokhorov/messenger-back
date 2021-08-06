@@ -5,5 +5,5 @@ export interface getChatInterface {
 
 export interface createChatInterface {
     _userName_: string,
-    users: Array<string>,
+    users: string,
 }
