@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import {getMessageInterface, markReadInterface, sendPhotoInterface} from "../interface/message.interface";
-import errorSwitch from "../../../gateWay/src/errorSwitch";
+import errorSwitch from "../errorSwitch";
 import lib_PubSub from "../my_library/lib_PubSub";
 import libraryInstance from "../my_library/libraryInstance";
 

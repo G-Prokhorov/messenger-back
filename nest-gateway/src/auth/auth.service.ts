@@ -1,9 +1,9 @@
-import {ForbiddenException, Injectable} from '@nestjs/common';
+import {BadRequestException, Injectable} from '@nestjs/common';
 import {loginInterface, registerInterface, sendCodeInterface} from "../interface/auth.interface";
-import errorSwitch from "../../../gateWay/src/errorSwitch";
+import errorSwitch from "../errorSwitch";
 import lib_PubSub from "../my_library/lib_PubSub";
 import libraryInstance from "../my_library/libraryInstance";
-import setToken from "../../../gateWay/src/token/set";
+import setToken from "../token/set";
 
 @Injectable()
 export class AuthService {
@@ -19,7 +19,7 @@ export class AuthService {
 
     sendCode(type: string, body: sendCodeInterface, res) {
         if (type !== "register" && type !== "restore") {
-            throw new ForbiddenException();
+            throw new BadRequestException();
         }
 
         const id = this.pubSub.subscribe("resSendCodeEmail", (err: string, message: string) => {

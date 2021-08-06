@@ -8,13 +8,13 @@ export class AuthController {
     constructor(private readonly authService: AuthService) {}
 
     @Post("/register")
-    register(@Body(new ValidationPipe()) registerBody: registerDto) {
-        return this.authService.register(registerBody);
+    register(@Body(new ValidationPipe()) registerBody: registerDto, @Res() res) {
+        return this.authService.register(registerBody, res);
     }
 
     @Post("/login")
-    login(@Body(new ValidationPipe()) loginBody: loginDto) {
-        return this.authService.login(loginBody);
+    login(@Body(new ValidationPipe()) loginBody: loginDto, @Res() res) {
+        return this.authService.login(loginBody, res);
     }
 
     @Post("/sendCode/:type")
