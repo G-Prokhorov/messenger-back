@@ -6,13 +6,11 @@ export interface restorePasswordInterface {
 }
 
 export interface changePasswordInterface {
-    _userName_: string,
     oldPass: string,
     password: string,
     confirm: string,
 }
 
 export interface changeNameInterface {
-    _userId_: string,
     name: string,
 }

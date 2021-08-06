@@ -1,14 +1,15 @@
 import {Injectable, InternalServerErrorException} from '@nestjs/common';
-import {createChatInterface, getChatInterface} from "../interface/chat.interface";
+import {createChatInterface} from "../interface/chat.interface";
 import errorSwitch from "../errorSwitch";
 import lib_PubSub from "../my_library/lib_PubSub";
 import libraryInstance from "../my_library/libraryInstance";
+import reqUserInterface from "../interface/reqUser.interface";
 
 @Injectable()
 export class ChatService {
     private pubSub: lib_PubSub = libraryInstance.getInstance();
 
-    getChat(body: getChatInterface, res) {
+    getChat(userInfo: reqUserInterface, res) {
         const id = this.pubSub.subscribe("resGetChats", async (err: string, message: string) => {
             if (err !== 'success') {
                 errorSwitch(res, err);
@@ -18,14 +19,13 @@ export class ChatService {
             res.status(200).send(message);
             return;
         });
-
         this.pubSub.publish("getChats", {
-            userId: body._userId_,
-            username: body._userName_,
+            userId: userInfo._userId_,
+            username: userInfo._userName_,
         }, id);
     }
 
-    createChat(body: createChatInterface, res) {
+    createChat(body: createChatInterface, userInfo: reqUserInterface, res) {
         let users
         try {
             users = JSON.parse(body.users)
@@ -49,7 +49,7 @@ export class ChatService {
 
         this.pubSub.publish("createChat", {
             users: users,
-            creator: body._userName_,
+            creator: userInfo._userName_,
         }, id);
     }
 }

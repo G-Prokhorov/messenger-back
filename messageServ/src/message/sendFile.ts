@@ -19,6 +19,7 @@ export default async function sendPhoto(data: any) {
     try {
         await checkChat(data.chatId, data.userId)
     } catch {
+        console.log(data)
         throw new Error("Forbidden")
     }
     let users:any = [];

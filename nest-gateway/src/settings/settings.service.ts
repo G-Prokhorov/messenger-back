@@ -3,13 +3,14 @@ import {changeNameInterface, changePasswordInterface, restorePasswordInterface} 
 import lib_PubSub from "../my_library/lib_PubSub";
 import libraryInstance from "../my_library/libraryInstance";
 import errorSwitch from "../errorSwitch";
+import reqUserInterface from "../interface/reqUser.interface";
 
 
 @Injectable()
 export class SettingsService {
     private pubSub: lib_PubSub = libraryInstance.getInstance();
 
-    updateName(body: changeNameInterface, res) {
+    updateName(body: changeNameInterface, userInfo: reqUserInterface, res) {
         const id = this.pubSub.subscribe("resUpdateName", async (err: string, message: string) => {
             if (err !== 'success') {
                 errorSwitch(res, err);
@@ -19,13 +20,13 @@ export class SettingsService {
         });
 
         this.pubSub.publish("updateName", {
-            userId: body._userId_,
+            userId: userInfo._userId_,
             name: body.name,
         }, id);
         return body;
     }
 
-    changePassword(body:changePasswordInterface, res) {
+    changePassword(body:changePasswordInterface, userInfo: reqUserInterface, res) {
         const id = this.pubSub.subscribe("resChangePassword", (err: string, message: string) => {
             if (err !== 'success') {
                 errorSwitch(res, err);
@@ -36,7 +37,7 @@ export class SettingsService {
         });
 
         this.pubSub.publish("changePassword", {
-            username: body._userName_,
+            username: userInfo._userName_,
             oldPass: body.oldPass,
             password: body.password,
             confirm: body.confirm,

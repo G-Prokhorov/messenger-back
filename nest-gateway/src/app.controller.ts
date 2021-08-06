@@ -1,6 +1,7 @@
-import {Body, Controller, Get, Query, Res} from '@nestjs/common';
+import {Controller, Get, Query, Res} from '@nestjs/common';
 import { AppService } from './app.service';
 import {checkTokensDto} from "./dto/app.dto";
+import {User} from "./decorator/user.decorator";
 
 @Controller()
 export class AppController {
@@ -17,7 +18,7 @@ export class AppController {
   }
 
   @Get('/checkTokens')
-  checkToken(@Body() bodyCheckTokens: checkTokensDto) {
+  checkToken(@User() bodyCheckTokens: checkTokensDto) {
     return this.appService.checkTokens(bodyCheckTokens);
   }
 

@@ -8,9 +8,6 @@ export class getMessageDto {
     @IsNumber()
     @Type(() => Number)
     start: number;
-
-    _userName_: string;
-    _userId_: number;
 }
 
 export class markReadDto {
@@ -20,17 +17,9 @@ export class markReadDto {
     @IsNumber()
     @Type(() => Number)
     value: number;
-
-    _userName_: string;
-    _userId_: number;
 }
 
 export class sendPhotoDto {
     @IsString()
     chatId: string;
-    files: any;
-
-    _userId_: number;
-    _userName_: string;
-    _u_name_: string;
 }
