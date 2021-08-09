@@ -1,4 +1,10 @@
-import {ForbiddenException, Injectable, InternalServerErrorException, NestMiddleware} from '@nestjs/common';
+import {
+    ForbiddenException,
+    HttpException, HttpStatus,
+    Injectable,
+    InternalServerErrorException,
+    NestMiddleware
+} from '@nestjs/common';
 import {Request, Response, NextFunction} from 'express';
 import setToken from '../token/set';
 import checkTokens from '../token/checkTokens';
@@ -37,9 +43,9 @@ export class AuthMiddleware implements NestMiddleware {
         } catch (e) {
             switch (e.message) {
                 case "User not exist":
-                    throw new ForbiddenException();
+                    throw new HttpException(e.message, HttpStatus.FORBIDDEN);
                 case "Token isn't valid":
-                    throw new ForbiddenException();
+                    throw new HttpException(e.message, HttpStatus.FORBIDDEN);
                 default:
                     throw new InternalServerErrorException();
             }
